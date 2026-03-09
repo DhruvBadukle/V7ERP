@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V7C ERP Documentation Portal</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* Slate 950 */
+            color: #e2e8f0;
+        }
+        .font-mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1, #a78bfa, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+        .tab-active {
+            border-bottom: 2px solid #6366f1;
+            color: #6366f1;
+        }
+        .tab-inactive {
+            border-bottom: 2px solid transparent;
+            color: #64748b;
+        }
+        .tab-inactive:hover {
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        // ─── DATA ────────────────────────────────────────────────────────────────────
+        const DB_TABLES = [
+          {
+            name: "ENTITY_MAST",
+            description: "Master record for organizational entities/companies",
+            primaryKey: ["ENTITY_CODE"],
+            color: "#6366f1",
+            columns: [
+              { name: "ENTITY_CODE", type: "VARCHAR2(2)", nullable: false, pk: true },
+              { name: "ENTITY_NAME", type: "VARCHAR2(100)", nullable: false },
+              { name: "PRINT_NAME", type: "VARCHAR2(100)", nullable: true },
+              { name: "PARENT_CODE", type: "VARCHAR2(2)", nullable: true },
+              { name: "CODETYPE", type: "NUMBER(1,0)", nullable: true, default: "1" },
+              { name: "ACC_CODE", type: "VARCHAR2(9)", nullable: true },
+              { name: "CURRENCY_CODE", type: "VARCHAR2(3)", nullable: true },
+              { name: "ADD1", type: "VARCHAR2(100)", nullable: true },
+              { name: "CITY", type: "VARCHAR2(100)", nullable: true },
+              { name: "STATE_CODE", type: "VARCHAR2(2)", nullable: true },
+              { name: "COUNTRY", type: "VARCHAR2(25)", nullable: true },
+              { name: "PHONE", type: "VARCHAR2(100)", nullable: true },
+              { name: "EMAIL", type: "VARCHAR2(100)", nullable: true },
+              { name: "PANNO", type: "VARCHAR2(50)", nullable: true },
+              { name: "CINNO", type: "VARCHAR2(50)", nullable: true },
+              { name: "CREATEDBY", type: "VARCHAR2(12)", nullable: false },
+              { name: "CREATEDDATE", type: "DATE", nullable: false },
+              { name: "USER_CODE", type: "VARCHAR2(12)", nullable: false },
+              { name: "LASTUPDATE", type: "DATE", nullable: false, default: "sysdate" },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+              { name: "SHORT_NAME", type: "VARCHAR2(10)", nullable: true },
+            ],
+          },
+          {
+            name: "USER_MAST",
+            description: "User accounts and access control master",
+            primaryKey: ["USER_CODE"],
+            color: "#8b5cf6",
+            columns: [
+              { name: "USER_CODE", type: "VARCHAR2(12)", nullable: false, pk: true },
+              { name: "USER_NAME", type: "VARCHAR2(50)", nullable: false },
+              { name: "PASSWORD", type: "VARCHAR2(2000)", nullable: false },
+              { name: "PASSWD_TYPE", type: "VARCHAR2(2)", nullable: true },
+              { name: "USER_LEVEL", type: "NUMBER(1,0)", nullable: true, default: "0" },
+              { name: "USER_STATUS", type: "VARCHAR2(1)", nullable: true },
+              { name: "ENTITY", type: "VARCHAR2(500)", nullable: true },
+              { name: "DIVISION", type: "VARCHAR2(500)", nullable: true },
+              { name: "ACC_CODE", type: "VARCHAR2(9)", nullable: true },
+              { name: "DEPT_CODE", type: "VARCHAR2(9)", nullable: true },
+              { name: "EMP_CODE", type: "VARCHAR2(9)", nullable: true },
+              { name: "EMAIL", type: "VARCHAR2(50)", nullable: true },
+              { name: "MODULE_CODE", type: "VARCHAR2(100)", nullable: true },
+              { name: "START_DATE", type: "DATE", nullable: true },
+              { name: "REPORTING_TO_USER_CODE", type: "VARCHAR2(12)", nullable: true },
+              { name: "USER_LICENSE_FLAG", type: "VARCHAR2(1)", nullable: true },
+              { name: "CREATEDBY", type: "VARCHAR2(12)", nullable: false },
+              { name: "CREATEDDATE", type: "DATE", nullable: false },
+              { name: "LASTUPDATE", type: "DATE", nullable: false, default: "sysdate" },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+              { name: "STATUS", type: "VARCHAR2(8)", nullable: true },
+            ],
+          },
+          {
+            name: "ACC_MAST",
+            description: "Account master — financial ledger accounts",
+            primaryKey: ["ACC_CODE"],
+            color: "#10b981",
+            columns: [
+              { name: "ACC_CODE", type: "VARCHAR2(9)", nullable: false, pk: true },
+              { name: "TITLE", type: "VARCHAR2(9)", nullable: true },
+              { name: "ACC_NAME", type: "VARCHAR2(100)", nullable: false },
+              { name: "ACC_PRINT_NAME", type: "VARCHAR2(100)", nullable: true },
+              { name: "PARENT_CODE", type: "VARCHAR2(9)", nullable: true },
+              { name: "CODETYPE", type: "NUMBER(1,0)", nullable: true, default: "1" },
+              { name: "ACC_STATUS", type: "VARCHAR2(2)", nullable: true },
+              { name: "ACC_TYPE", type: "VARCHAR2(1)", nullable: true },
+              { name: "ACC_SCH", type: "VARCHAR2(9)", nullable: true },
+              { name: "BILLTRACK_FLAG", type: "NUMBER(1,0)", nullable: true, default: "0" },
+              { name: "GPDAYS", type: "NUMBER(3,0)", nullable: true },
+              { name: "CREDITLIMIT", type: "NUMBER(20,3)", nullable: true },
+              { name: "PANNO", type: "VARCHAR2(15)", nullable: true },
+              { name: "CURRENCY_CODE", type: "VARCHAR2(3)", nullable: true },
+              { name: "CREATEDBY", type: "VARCHAR2(12)", nullable: false },
+              { name: "CREATEDDATE", type: "DATE", nullable: false },
+              { name: "USER_CODE", type: "VARCHAR2(12)", nullable: false },
+              { name: "LASTUPDATE", type: "DATE", nullable: false, default: "sysdate" },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+            ],
+          },
+          {
+            name: "DIV_MAST",
+            description: "Division / branch master within an entity",
+            primaryKey: ["DIV_CODE", "ENTITY_CODE"],
+            color: "#f59e0b",
+            columns: [
+              { name: "ENTITY_CODE", type: "VARCHAR2(2)", nullable: false, pk: true, fk: "ENTITY_MAST.ENTITY_CODE" },
+              { name: "DIV_CODE", type: "VARCHAR2(5)", nullable: false, pk: true },
+              { name: "DIV_NAME", type: "VARCHAR2(100)", nullable: false },
+              { name: "PRINT_NAME", type: "VARCHAR2(100)", nullable: true },
+              { name: "SHORT_NAME", type: "VARCHAR2(10)", nullable: true },
+              { name: "PARENT_CODE", type: "VARCHAR2(5)", nullable: true },
+              { name: "CODETYPE", type: "NUMBER(1,0)", nullable: true, default: "1" },
+              { name: "ACC_CODE", type: "VARCHAR2(9)", nullable: true },
+              { name: "CITY", type: "VARCHAR2(100)", nullable: true },
+              { name: "STATE_CODE", type: "VARCHAR2(2)", nullable: true },
+              { name: "EMAIL", type: "VARCHAR2(100)", nullable: true },
+              { name: "PANNO", type: "VARCHAR2(50)", nullable: true },
+              { name: "CREATEDBY", type: "VARCHAR2(12)", nullable: false },
+              { name: "CREATEDDATE", type: "DATE", nullable: false },
+              { name: "USER_CODE", type: "VARCHAR2(12)", nullable: false },
+              { name: "LASTUPDATE", type: "DATE", nullable: false, default: "sysdate" },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+            ],
+          },
+          {
+            name: "ACC_YEAR_MAST",
+            description: "Accounting year / fiscal year definitions per entity",
+            primaryKey: ["ENTITY_CODE", "ACC_YEAR"],
+            color: "#ec4899",
+            columns: [
+              { name: "ENTITY_CODE", type: "VARCHAR2(2)", nullable: false, pk: true, fk: "ENTITY_MAST.ENTITY_CODE" },
+              { name: "ACC_YEAR", type: "VARCHAR2(5)", nullable: false, pk: true },
+              { name: "YRBEGDATE", type: "DATE", nullable: false },
+              { name: "YRENDDATE", type: "DATE", nullable: false },
+              { name: "STATUS", type: "VARCHAR2(8)", nullable: true },
+              { name: "FREEZDATE", type: "DATE", nullable: true },
+              { name: "CREATEDBY", type: "VARCHAR2(12)", nullable: true },
+              { name: "CREATEDDATE", type: "DATE", nullable: true },
+              { name: "USER_CODE", type: "VARCHAR2(12)", nullable: true, fk: "USER_MAST.USER_CODE" },
+              { name: "LASTUPDATE", type: "DATE", nullable: true, default: "sysdate" },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+            ],
+          },
+          {
+            name: "CONFIG_MAST",
+            description: "Transaction series / voucher configuration per entity-year",
+            primaryKey: ["ENTITY_CODE", "ACC_YEAR", "TCODE", "SERIES"],
+            color: "#14b8a6",
+            columns: [
+              { name: "ENTITY_CODE", type: "VARCHAR2(2)", nullable: false, pk: true },
+              { name: "ACC_YEAR", type: "VARCHAR2(5)", nullable: false, pk: true },
+              { name: "DIV_CODE", type: "VARCHAR2(5)", nullable: true, fk: "DIV_MAST.DIV_CODE" },
+              { name: "TCODE", type: "VARCHAR2(2)", nullable: false, pk: true },
+              { name: "SERIES", type: "VARCHAR2(3)", nullable: false, pk: true },
+              { name: "BHEADING", type: "VARCHAR2(100)", nullable: false },
+              { name: "VRPREFIX", type: "VARCHAR2(25)", nullable: true },
+              { name: "SERIESTYPE", type: "VARCHAR2(3)", nullable: false },
+              { name: "TNATURE", type: "VARCHAR2(6)", nullable: false },
+              { name: "FREEZDATE", type: "DATE", nullable: true },
+              { name: "POSTING_TYPE", type: "VARCHAR2(1)", nullable: true },
+              { name: "STOCK_FLAG", type: "VARCHAR2(1)", nullable: true },
+              { name: "CREATEDBY", type: "VARCHAR2(12)", nullable: false },
+              { name: "CREATEDDATE", type: "DATE", nullable: false },
+              { name: "USER_CODE", type: "VARCHAR2(12)", nullable: false },
+              { name: "LASTUPDATE", type: "DATE", nullable: false, default: "sysdate" },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+            ],
+          },
+          {
+            name: "ADDRESS_MAST",
+            description: "Multiple addresses per account (billing, shipping, etc.)",
+            primaryKey: ["ADDRESS_SLNO"],
+            color: "#f97316",
+            columns: [
+              { name: "ADDRESS_SLNO", type: "NUMBER", nullable: false, pk: true },
+              { name: "ACC_CODE", type: "VARCHAR2(9)", nullable: false, fk: "ACC_MAST.ACC_CODE" },
+              { name: "TITLE", type: "VARCHAR2(9)", nullable: true },
+              { name: "ACC_NAME", type: "VARCHAR2(100)", nullable: false },
+              { name: "OFFICETYPE", type: "VARCHAR2(10)", nullable: true },
+              { name: "GSTINNO", type: "VARCHAR2(16)", nullable: true },
+              { name: "DEFAULT_ADD_FLAG", type: "VARCHAR2(1)", nullable: false },
+              { name: "DEFAULT_DELIVERY_FLAG", type: "VARCHAR2(1)", nullable: false },
+              { name: "ADDRESS", type: "VARCHAR2(500)", nullable: true },
+              { name: "CITY_CODE", type: "VARCHAR2(100)", nullable: true },
+              { name: "STATE_CODE", type: "VARCHAR2(9)", nullable: true },
+              { name: "PIN", type: "VARCHAR2(9)", nullable: true },
+              { name: "PHONE", type: "VARCHAR2(30)", nullable: true },
+              { name: "MOBILE", type: "VARCHAR2(50)", nullable: true },
+              { name: "EMAIL", type: "VARCHAR2(1000)", nullable: true },
+              { name: "PANNO", type: "VARCHAR2(10)", nullable: true },
+              { name: "CREATEDBY", type: "VARCHAR2(12)", nullable: false },
+              { name: "CREATEDDATE", type: "DATE", nullable: false },
+              { name: "USER_CODE", type: "VARCHAR2(12)", nullable: false, fk: "USER_MAST.USER_CODE" },
+              { name: "LASTUPDATE", type: "DATE", nullable: false, default: "sysdate" },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+            ],
+          },
+          {
+            name: "ORDER_HEAD",
+            description: "Transaction/order header — primary voucher record",
+            primaryKey: ["ENTITY_CODE", "TCODE", "VRNO", "AMENDNO"],
+            color: "#ef4444",
+            columns: [
+              { name: "ENTITY_CODE", type: "VARCHAR2(2)", nullable: false, pk: true },
+              { name: "TCODE", type: "VARCHAR2(2)", nullable: false, pk: true },
+              { name: "TNATURE", type: "VARCHAR2(6)", nullable: false },
+              { name: "SERIES", type: "VARCHAR2(3)", nullable: false },
+              { name: "ACC_YEAR", type: "VARCHAR2(5)", nullable: false },
+              { name: "VRNO", type: "VARCHAR2(16)", nullable: false, pk: true },
+              { name: "VRDATE", type: "DATE", nullable: false },
+              { name: "AMENDNO", type: "NUMBER", nullable: false, pk: true },
+              { name: "AMENDDATE", type: "DATE", nullable: false },
+              { name: "TRANTYPE", type: "VARCHAR2(9)", nullable: false },
+              { name: "ACC_CODE", type: "VARCHAR2(9)", nullable: true, fk: "ACC_MAST.ACC_CODE" },
+              { name: "PARTYREFNO", type: "VARCHAR2(100)", nullable: true },
+              { name: "PARTYREFDATE", type: "DATE", nullable: true },
+              { name: "CURRENCY_CODE", type: "VARCHAR2(3)", nullable: true },
+              { name: "EXCHANGE_RATE", type: "NUMBER", nullable: true },
+              { name: "ADVANCE_AMT", type: "NUMBER", nullable: true },
+              { name: "CLOSED_FLAG", type: "VARCHAR2(1)", nullable: true },
+              { name: "APPROVEDBY", type: "VARCHAR2(12)", nullable: true },
+              { name: "APPROVEDDATE", type: "DATE", nullable: true },
+              { name: "CREATEDBY", type: "VARCHAR2(12)", nullable: false },
+              { name: "CREATEDDATE", type: "DATE", nullable: false },
+              { name: "USER_CODE", type: "VARCHAR2(12)", nullable: false },
+              { name: "LASTUPDATE", type: "DATE", nullable: false },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+            ],
+          },
+          {
+            name: "ORDER_BODY",
+            description: "Transaction line items — product/service detail per voucher",
+            primaryKey: ["ENTITY_CODE", "TCODE", "VRNO", "AMENDNO", "SLNO"],
+            color: "#dc2626",
+            columns: [
+              { name: "ENTITY_CODE", type: "VARCHAR2(2)", nullable: false, pk: true },
+              { name: "TCODE", type: "VARCHAR2(2)", nullable: false, pk: true },
+              { name: "VRNO", type: "VARCHAR2(16)", nullable: false, pk: true },
+              { name: "AMENDNO", type: "NUMBER", nullable: false, pk: true },
+              { name: "SLNO", type: "NUMBER", nullable: false, pk: true },
+              { name: "ITEM_CODE", type: "VARCHAR2(12)", nullable: true },
+              { name: "DIV_CODE", type: "VARCHAR2(5)", nullable: false },
+              { name: "UM", type: "VARCHAR2(3)", nullable: true },
+              { name: "QTYORDER", type: "NUMBER", nullable: true },
+              { name: "QTYBILLED", type: "NUMBER", nullable: true },
+              { name: "NET_RATE", type: "NUMBER", nullable: true },
+              { name: "RATE", type: "NUMBER", nullable: true },
+              { name: "DRAMT", type: "NUMBER", nullable: true },
+              { name: "CRAMT", type: "NUMBER", nullable: true },
+              { name: "TAX_RATE", type: "NUMBER", nullable: true },
+              { name: "TAX_AMOUNT", type: "NUMBER", nullable: true },
+              { name: "DUEDATE", type: "DATE", nullable: true },
+              { name: "CANCELLED_FLAG", type: "VARCHAR2(1)", nullable: true },
+              { name: "CREATEDBY", type: "VARCHAR2(12)", nullable: false },
+              { name: "CREATEDDATE", type: "DATE", nullable: false },
+              { name: "USER_CODE", type: "VARCHAR2(12)", nullable: false },
+              { name: "LASTUPDATE", type: "DATE", nullable: false },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+            ],
+          },
+          {
+            name: "LHSSYS_USER_APP_KEY_VALIDATION",
+            description: "Mobile app session keys and device access control",
+            primaryKey: ["APPKEY", "USER_CODE"],
+            color: "#7c3aed",
+            columns: [
+              { name: "APPKEY", type: "VARCHAR2(50)", nullable: false, pk: true },
+              { name: "USER_CODE", type: "VARCHAR2(15)", nullable: false, pk: true },
+              { name: "EMP_CODE", type: "VARCHAR2(9)", nullable: false },
+              { name: "MODULE", type: "VARCHAR2(15)", nullable: false },
+              { name: "FLAG", type: "VARCHAR2(1)", nullable: true },
+              { name: "DEVICE_ID", type: "VARCHAR2(500)", nullable: true },
+              { name: "DEVICE_NAME", type: "VARCHAR2(1000)", nullable: true },
+              { name: "MOBILE", type: "VARCHAR2(32)", nullable: true },
+              { name: "WEB_ACCESS", type: "VARCHAR2(1)", nullable: true },
+              { name: "ANDROID_ACCESS", type: "VARCHAR2(1)", nullable: true },
+              { name: "IOS_ACCESS", type: "VARCHAR2(1)", nullable: true },
+              { name: "GPS_MANDATORY_FLAG", type: "VARCHAR2(1)", nullable: true },
+              { name: "LOGIN_OTP", type: "VARCHAR2(1000)", nullable: true },
+              { name: "STOP_ACCESS_DATE", type: "DATE", nullable: true },
+              { name: "PUSH_ALERT_TOKEN_NO", type: "VARCHAR2(500)", nullable: true },
+            ],
+          },
+        ];
+
+        const ER_RELATIONS = [
+          { from: "ENTITY_MAST", to: "DIV_MAST", label: "1 → N", desc: "Entity has many Divisions" },
+          { from: "ENTITY_MAST", to: "ACC_YEAR_MAST", label: "1 → N", desc: "Entity has many Acc Years" },
+          { from: "ENTITY_MAST", to: "CONFIG_MAST", label: "1 → N", desc: "Entity has many Configs" },
+          { from: "USER_MAST", to: "ACC_YEAR_MAST", label: "1 → N", desc: "User creates Acc Years" },
+          { from: "USER_MAST", to: "ADDRESS_MAST", label: "1 → N", desc: "User creates Addresses" },
+          { from: "USER_MAST", to: "LHSSYS_USER_APP_KEY_VALIDATION", label: "1 → N", desc: "User has App Keys" },
+          { from: "ACC_MAST", to: "ADDRESS_MAST", label: "1 → N", desc: "Account has many Addresses" },
+          { from: "ACC_MAST", to: "ORDER_HEAD", label: "1 → N", desc: "Account has many Orders" },
+          { from: "DIV_MAST", to: "CONFIG_MAST", label: "1 → N", desc: "Division has many Configs" },
+          { from: "ORDER_HEAD", to: "ORDER_BODY", label: "1 → N", desc: "Order Header has Line Items" },
+        ];
+
+        const FRAME_TYPES = [
+          { no: 1, type: "CANVAS", subtypes: ["BASIC", "COLLAPSE", "SINGLE_ROW", "CANVAS_KPI_4", "CANVAS_KPI_12", "BLANK", "SINGLE_ROW_BLANK", "CANVAS_MENU_TAB_6", "CANVAS_KPI_DASH"] },
+          { no: 2, type: "CANVAS-BORDERED", subtypes: ["BASIC"] },
+          { no: 3, type: "TABLE", subtypes: ["BASIC", "COLLAPSE", "SINGLE_ROW", "JSON"] },
+          { no: 4, type: "ENTRY_TABLE", subtypes: ["BASIC", "COLLAPSE", "SINGLE_ROW"] },
+          { no: 5, type: "HORIZONTAL_TABLE", subtypes: ["BASIC"] },
+          { no: 6, type: "MINI_CARD", subtypes: ["BASIC"] },
+          { no: 7, type: "CARD", subtypes: ["BASIC", "IMAGE", "ATTACHMENT", "INPUT_CARD"] },
+          { no: 8, type: "PROFILE_CARD", subtypes: ["BASIC"] },
+          { no: 9, type: "SIDE_BAR", subtypes: ["BASIC"] },
+          { no: 10, type: "FOOTER_BAR", subtypes: ["BASIC"] },
+          { no: 11, type: "FAB_BALL", subtypes: ["BASIC"] },
+          { no: 12, type: "IMAGE_SLIDER", subtypes: ["BASIC"] },
+          { no: 13, type: "TREE_TABLE", subtypes: ["TREE_TABLE"] },
+          { no: 14, type: "TREE_MENU", subtypes: ["TREE_MENU"] },
+          { no: 15, type: "NEWCALENDER", subtypes: ["BASIC"] },
+          { no: 16, type: "SUMMARY_CARD", subtypes: ["UNDEFINED"] },
+          { no: 17, type: "CHART", subtypes: ["(X1,Y1)", "(D1,Y1)", "(X1,Y1,Y2)", "(X1,Y1,Y2,Y3)", "(X1,X2,Y1)", "(X1,YN)", "(From,To,Y1)", "(Y1,Y2,Y3,Y4,Y5,Y6)"] },
+        ];
+
+        const ITEM_TYPES = [
+          { no: 1, type: "TEXT_INPUT", subtypes: ["BOX_LEFT", "BOX_TOP", "UL_LEFT", "UL_FLOATING", "UL_TOP", "BOX_FLOATING"] },
+          { no: 2, type: "TEXT_DISPLAY", subtypes: ["TEXT_DISPLAY", "COLOR_PROMPT", "ALIGN_TEXT"] },
+          { no: 3, type: "BUTTON", subtypes: ["FIXED", "VARIABLE", "VARIABLE_SMALL", "OUTLINE"] },
+          { no: 4, type: "BUTTON_ICON", subtypes: ["ADD", "EDIT", "VIEW", "DELETE", "CANCEL", "CLOSE", "DOWNLOAD", "PRINT", "SAVE", "APPROVE"] },
+          { no: 5, type: "BAND", subtypes: ["TAB_COUNT", "TAB_3D", "TAB", "TAB_IMAGE", "KPI", "KPI_CARD", "KPI_TOP", "KPI_LEFT"] },
+          { no: 6, type: "RADIO_BUTTON", subtypes: ["BOX_LEFT", "BOX_TOP", "UL_LEFT", "UL_TOP", "RB_TAB_LEFT", "RB_CIRCLE"] },
+          { no: 7, type: "CHECK_BOX", subtypes: ["BOX_LEFT", "BOX_TOP", "UL_TOP", "UL_LEFT"] },
+          { no: 8, type: "LIST_BOX", subtypes: ["DROP_DOWN_BOX_LEFT", "DROP_DOWN_BOX_TOP", "COMBO_BOX_LEFT", "COMBO_BOX_TOP"] },
+          { no: 9, type: "IMAGE_INPUT", subtypes: ["ONLY_CAMERA", "ONLY_FILE", "CAMERA_FILE"] },
+          { no: 10, type: "FRAME_SEPARATOR", subtypes: ["FRAME", "COLLAPSE", "POPUP", "TAB_HORIZONTAL", "TAB_VERTICAL"] },
+          { no: 11, type: "FILE_INPUT", subtypes: ["SINGLE_FILE", "MULTI_FILE"] },
+          { no: 12, type: "TEXT_AREA", subtypes: ["BOX_LEFT", "BOX_TOP", "UL_LEFT", "UL_TOP"] },
+          { no: 13, type: "SPECIAL", subtypes: ["CARD_TITLE", "CARD_FOOTER", "DIALER", "RICH_TEXT", "TOGGLE"] },
+          { no: 14, type: "BARQR_INPUT", subtypes: ["BARCODE", "QRCODE"] },
+        ];
+
+        const BUILTINS = [
+          { no: 1, name: "ALL_ITEMWISE_SQL_POPULATE_DATA", syntax: "all_itemwise_sql_populate_data;", use: "To Execute KPIs", category: "Frame" },
+          { no: 2, name: "APP_ADD_PARA", syntax: "app_add_para('P_CP_A','VALUE');", use: "For Declaring and Initializing Parameter and Passing it to Next Object", category: "Utility" },
+          { no: 3, name: "APP_ADD_PARA_BACK", syntax: "app_add_para_back('P_SYS_BACK_REFRESH','Y');", use: "Use to create parameter", category: "Utility" },
+          { no: 4, name: "APP_APPEND_NEXT_PAGE", syntax: "app_append_next_page;", use: "To open page on same object", category: "Page" },
+          { no: 5, name: "APP_BACK_OBJECT", syntax: "app_back_object;", use: "Go To Back Object", category: "Object" },
+          { no: 6, name: "APP_BACK_PAGE", syntax: "app_back_page;", use: "To go back to the previous page", category: "Page" },
+          { no: 7, name: "APP_CLEAR_FRAME", syntax: "app_clear_frame('frame ID/alias');", use: "Clear Values of Specific Frame", category: "Frame" },
+          { no: 8, name: "APP_CLEAR_ITEM", syntax: "app_clear_item(S.TEST1,0);", use: "To Clear item", category: "Item" },
+          { no: 9, name: "APP_CLEAR_OBJECT", syntax: "app_clear_object('object code')", use: "Clear Values of Specific Object", category: "Object" },
+          { no: 10, name: "APP_CLEAR_RECORD", syntax: "app_clear_record('BR');", use: "Used to delete the frame", category: "Frame" },
+          { no: 11, name: "APP_COLLAPSE_FRAME", syntax: "app_collapse_frame('frame ID/alias');", use: "Use to collapse frame using builtins", category: "Frame" },
+          { no: 12, name: "APP_CREATE_RECORD", syntax: "app_create_record('Associate frame','main frame');", use: "To Create/Add Record to Temporary Frame", category: "Record" },
+          { no: 13, name: "APP_CREATE_TABLE_RECORD", syntax: "app_create_table_record('frame ID/alias')", use: "To add new blank record to entry table", category: "Frame" },
+          { no: 14, name: "APP_DELETE_RECORD", syntax: "app_delete_record(frameName, no?, whereStr?, index?)", use: "Clear Record From app and remains on WSDP", category: "Record" },
+          { no: 15, name: "APP_EXECUTE_FRAME", syntax: "app_execute_frame('frame id/alias','execute_query');", use: "To Run SQL/PLSQL Text in Frame", category: "Frame" },
+          { no: 16, name: "EXECUTE_QUERY", syntax: "execute_query;", use: "To Execute SQL/PLSQL in Frame", category: "Frame" },
+          { no: 17, name: "EXECUTE_QUERY_ONCE", syntax: "execute_query_once;", use: "Load or Execute Query only once", category: "Frame" },
+          { no: 18, name: "GET_ITEM_VALUE", syntax: "get_item_value('frame_alias.item_name',index);", use: "To Get object Configuration", category: "Item" },
+          { no: 19, name: "SET_ITEM_VALUE", syntax: "set_item_value(':item_name',0,value);", use: "To Set Item Value", category: "Item" },
+          { no: 20, name: "SET_FRAME_CONFIG", syntax: "set_frame_config('frame_id','apps_frame_type','table');", use: "To Set Frame Configuration", category: "Frame" },
+          { no: 21, name: "OPEN_LOV", syntax: "open_lov();", use: "To open the lov on the specific item", category: "Item" },
+          { no: 22, name: "OPEN_MULTI_LOV", syntax: "open_multi_lov();", use: "Used to select multiple values in lov", category: "Item" },
+          { no: 23, name: "VALIDATE_LOV", syntax: "validate_lov();", use: "Validate Lov with First column in Lov", category: "Item" },
+          { no: 24, name: "ORA_PLSQL1_TEXT", syntax: "ora_plsql1_text;", use: "Use to Perform Operation on Oracle/Database Side(Click/Post)", category: "Backend" },
+          { no: 25, name: "ORA_PLSQL2_TEXT", syntax: "ora_plsql2_text;", use: "Use to Perform Operation on Oracle/Database Side(Click/Post)", category: "Backend" },
+          { no: 26, name: "APP_PLSQL1_TEXT", syntax: "app_plsql1_text;", use: "Use to Perform Operation on Application Side(click/post)", category: "Frontend" },
+          { no: 27, name: "APP_PLSQL2_TEXT", syntax: "app_plsql2_text;", use: "Use to Perform Operation on Application Side(click/post)", category: "Frontend" },
+          { no: 28, name: "APP_JS1_TEXT", syntax: "app_js1_text;", use: "Use to Perform Operation on Application Side(click/post)", category: "Frontend" },
+          { no: 29, name: "APP_CONFIRM_MSG", syntax: "app_confirm_msg('MI/MS','YES','NO','NULL','NULL',SMG);", use: "Use to populate msg either YES or NO", category: "Utility" },
+          { no: 30, name: "POPULATE_LIST", syntax: "populate_list();", use: "Use to generate the list on the dropdown Values", category: "Item" },
+          { no: 31, name: "GO_ITEM", syntax: "go_item('frame_alias.item_name, 0);", use: "To Jump Cursor to selected particular item", category: "Item" },
+          { no: 32, name: "APP_RELOAD_OBJECT", syntax: "app_reload_object('object code');", use: "To reload object.", category: "Object" },
+          { no: 33, name: "APP_RELOAD_FRAME", syntax: "app_reload_frame('frame_id/frame_alias');", use: "To Reload the Specific frame", category: "Frame" },
+          { no: 34, name: "WS_OPEN_URL", syntax: "ws_open_url(p_url);", use: "To Open particular URL", category: "WebService" },
+          { no: 35, name: "BACK_REFRESH", syntax: "BACK_REFRESH();", use: "To do back refresh after save", category: "Utility" },
+          { no: 36, name: "SET_PAGE_CONFIG", syntax: "set_page_config(1, 'apps_page_name', \"Page Name\");", use: "To Set Page Config like Page Name", category: "Page" },
+          { no: 37, name: "SEARCH_ITEM", syntax: "search_item(':frame_alias.from_item','':frame_alias.to_item');", use: "To Search/Filter Item in Json Table", category: "Frame" },
+          { no: 38, name: "APP_NEXT_PAGE", syntax: "app_next_page;", use: "It is use to call same object page to Next Page", category: "Page" },
+        ];
+
+        const FILTER_FLAGS = [
+          { flag: "SERACH_BAR", use: "Search Bar In Frame", canUseIn: "CANVAS, TABLE, ENTRY_TABLE" },
+          { flag: "TABLE_SCROLL", use: "Scroll Feature in Table", canUseIn: "CANVAS, TABLE, ENTRY_TABLE, CARD, PROFILE_CARD" },
+          { flag: "IS", use: "Column Wise Search Bar", canUseIn: "TABLE" },
+          { flag: "ACTION", use: "Action Table Features", canUseIn: "TABLE" },
+          { flag: "STC", use: "Switch Table to Card", canUseIn: "TABLE" },
+          { flag: "NO_SORT", use: "For not sorting columns in tables", canUseIn: "TABLE" },
+          { flag: "NO_PAGINATE", use: "For hiding pagination bar in table and entry table", canUseIn: "TABLE / ENTRY_TABLE" },
+          { flag: "C", use: "For Use In MMT Filter", canUseIn: "TABLE" },
+          { flag: "NO_DOWNLOAD", use: "To Hide Download Button In (table & entry table)", canUseIn: "TABLE / ENTRY_TABLE" },
+        ];
+
+        const INPUT_PATTERNS = [
+          { no: 1, keyword: "EMAIL", use: "Write proper email IDs. Multiple emails separated by comma" },
+          { no: 2, keyword: "PASSWORD", use: "To hide the text written" },
+          { no: 3, keyword: "CAPS", use: "To do all the letters in capital" },
+          { no: 4, keyword: "MOBILE", use: "Validate only to use numbers only without country code" },
+          { no: 5, keyword: "NUMBER", use: "This will be used to write only numbers" },
+          { no: 6, keyword: "WCMOBILE", use: "Validate only to use numbers with country code (+91...)" },
+          { no: 7, keyword: "SENTENCE", use: "Validate to write proper sentence with full stop at end" },
+          { no: 8, keyword: "LOWER", use: "To do all the letters in small letters" },
+          { no: 9, keyword: "ALPHANUMERIC", use: "Allow alphanumeric characters only" },
+          { no: 10, keyword: "INITCAPS", use: "To do all the first letters in capital" },
+          { no: 11, keyword: "LOV_POPLIST", use: "Configure the values with LOV_CODE" },
+          { no: 12, keyword: "SQL_POPLIST", use: "Configure the values with SQL_TEXT" },
+          { no: 13, keyword: "A#APPLE,B#BALL", use: "Static configuration pattern (key#value pairs)" },
+        ];
+
+        const LIBRARIES = [
+          { no: 1, name: "AJS_CHECK_NULL_VALUE", use: "Check if item is null and send alert message", syntax: "ajs_check_null_item(a_item_name, a_alert)" },
+          { no: 2, name: "AJS_SET_BODY_SLNO", use: "Generate new slno", syntax: "ajs_set_body_slno(a_tempBody, a_slno)" },
+          { no: 3, name: "AJS_CHECK_BALANCE_QTY", use: "Multiply rate and quantity and give result", syntax: "ajs_check_balance_qty(a_qty, a_rate)" },
+          { no: 4, name: "AJS_DEFAULT_VRDATE", use: "Get default VR date", syntax: "ajs_default_vrdate()" },
+          { no: 5, name: "AJS_NEGATIVE_VALUE_CHECK", use: "Check if entered value is non negative", syntax: "ajs_negative_value_check(aVal)" },
+          { no: 6, name: "AJS_DATES_COMPARE", use: "Checking if fromDate < toDate", syntax: "ajs_dates_compare(fDate, tDate)" },
+          { no: 7, name: "AJS_DATE_COMPARE", use: "Compare date depending on str (BFY, GECD, LECD)", syntax: "ajs_date_compare(date, str)" },
+          { no: 8, name: "AJS_EVALUATE", use: "Calculating values", syntax: "ajs_evaluate(parseStr, wma_record_indx)" },
+          { no: 9, name: "AJS_NVL_FUNCTION", use: "Works as NVL (null value logic)", syntax: "nvl(value1, value2)" },
+          { no: 10, name: "OAJS_ITEM_POP_DEFAULTS", use: "Pop item default values", syntax: "pop_item_defaults()" },
+          { no: 11, name: "AJS_VALIDATE_SERIES_RIGHTS", use: "Validate series access rights", syntax: "ajs_validate_series_rights()" },
+        ];
+
+        // ─── HELPERS ─────────────────────────────────────────────────────────────────
+        const typeColor = (t) => {
+          if (t.startsWith("VARCHAR")) return "#38bdf8";
+          if (t.startsWith("NUMBER")) return "#a78bfa";
+          if (t === "DATE") return "#34d399";
+          return "#fb923c";
+        };
+
+        const categoryColor = (c) => {
+          const map = { Frame: "#6366f1", Item: "#10b981", Object: "#f59e0b", Page: "#ec4899", Record: "#14b8a6", Backend: "#ef4444", Frontend: "#8b5cf6", WebService: "#0ea5e9", Utility: "#84cc16" };
+          return map[c] || "#94a3b8";
+        };
+
+        const PALETTE = ["#6366f1", "#8b5cf6", "#10b981", "#f59e0b", "#ec4899", "#14b8a6", "#ef4444", "#0ea5e9", "#84cc16", "#f97316"];
+
+        // ─── UI COMPONENTS ───────────────────────────────────────────────────────────
+
+        const Badge = ({ children, color = "#6366f1", small }) => (
+          <span className={`inline-block border rounded font-mono whitespace-nowrap ${small ? 'text-[10px] px-1.5 py-0.5' : 'text-[11px] px-2 py-0.5'}`}
+            style={{ backgroundColor: `${color}22`, color: color, borderColor: `${color}55` }}>
+            {children}
+          </span>
+        );
+
+        const Pill = ({ children, color = "#64748b" }) => (
+          <span className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-medium whitespace-nowrap"
+            style={{ backgroundColor: `${color}18`, color: color, border: `1px solid ${color}40` }}>
+            {children}
+          </span>
+        );
+
+        const SectionHeader = ({ icon, title, subtitle, count }) => (
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-2xl">{icon}</span>
+              <div>
+                <h2 className="text-xl font-bold text-slate-100 font-mono tracking-tight">{title}</h2>
+                {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
+              </div>
+              {count !== undefined && (
+                <div className="ml-auto bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-xs font-semibold text-slate-400">
+                  {count} entries
+                </div>
+              )}
+            </div>
+            <div className="h-0.5 bg-gradient-to-r from-indigo-500 to-transparent rounded-full w-full"></div>
+          </div>
+        );
+
+        // ─── TABLE CARD ───────────────────────────────────────────────────────────────
+
+        const TableCard = ({ table, onSelect, selected }) => (
+          <div onClick={() => onSelect(table)}
+            className={`p-4 rounded-xl cursor-pointer transition-all duration-200 border-2 ${selected ? 'bg-slate-800 scale-[1.02]' : 'bg-slate-900 hover:bg-slate-800'}`}
+            style={{ borderColor: selected ? table.color : '#1e293b', boxShadow: selected ? `0 0 20px ${table.color}33` : 'none' }}>
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: table.color }}></div>
+              <span className="font-mono font-bold text-sm text-slate-100 truncate">{table.name}</span>
+              <span className="ml-auto text-[10px] text-slate-500 font-medium">{table.columns.length} cols</span>
+            </div>
+            <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-2">{table.description}</p>
+            <div className="flex gap-1.5 flex-wrap">
+              {table.primaryKey.map(k => <Badge key={k} color="#f59e0b" small>PK: {k}</Badge>)}
+            </div>
+          </div>
+        );
+
+        // ─── TABLE DETAIL ──────────────────────────────────────────────────────────────
+
+        const TableDetail = ({ table }) => {
+          const [search, setSearch] = useState("");
+          const filtered = table.columns.filter(c => 
+            c.name.toLowerCase().includes(search.toLowerCase()) || 
+            c.type.toLowerCase().includes(search.toLowerCase())
+          );
+
+          return (
+            <div>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: table.color }}></div>
+                <h3 className="text-lg font-bold text-slate-100 font-mono">{table.name}</h3>
+                <Pill color={table.color}>{table.columns.length} columns</Pill>
+              </div>
+              <p className="text-sm text-slate-400 mb-4">{table.description}</p>
+              
+              <div className="mb-4 space-y-2">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Primary Key:</span>
+                  {table.primaryKey.map(k => <Badge key={k} color="#f59e0b">{k}</Badge>)}
+                </div>
+                {table.columns.filter(c => c.fk).length > 0 && (
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Foreign Keys:</span>
+                    {table.columns.filter(c => c.fk).map(c => (
+                      <Badge key={c.name} color="#ec4899">{c.name} → {c.fk}</Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="relative mb-3">
+                <input 
+                  value={search} 
+                  onChange={e => setSearch(e.target.value)} 
+                  placeholder="Search columns..." 
+                  className="w-full bg-slate-950 border border-slate-700 rounded-lg py-2 px-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+                <svg className="w-4 h-4 text-slate-600 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              </div>
+
+              <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead>
+                    <tr className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                      {["Column Name", "Data Type", "Nullable", "Flags", "Default"].map(h => (
+                        <th key={h} className="p-3 font-bold uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {filtered.map((col) => (
+                      <tr key={col.name} className="hover:bg-slate-900/50 transition-colors">
+                        <td className={`p-3 font-medium ${col.pk ? 'text-amber-400' : col.fk ? 'text-pink-400' : 'text-slate-300'}`}>
+                          {col.name}
+                        </td>
+                        <td className="p-3"><Badge color={typeColor(col.type)} small>{col.type}</Badge></td>
+                        <td className={`p-3 font-semibold ${col.nullable ? 'text-slate-500' : 'text-red-400'}`}>
+                          {col.nullable ? "YES" : "NOT NULL"}
+                        </td>
+                        <td className="p-3 flex gap-1.5 flex-wrap">
+                          {col.pk && <Badge color="#f59e0b" small>PK</Badge>}
+                          {col.fk && <Badge color="#ec4899" small>FK</Badge>}
+                        </td>
+                        <td className="p-3 text-slate-500">{col.default || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        };
+
+        // ─── ER DIAGRAM ───────────────────────────────────────────────────────────────
+
+        const ERDiagram = () => {
+          const [hovered, setHovered] = useState(null);
+          
+          // Responsive coordinates
+          const positions = {
+            ENTITY_MAST: { x: 340, y: 60 },
+            USER_MAST: { x: 680, y: 60 },
+            DIV_MAST: { x: 160, y: 220 },
+            ACC_YEAR_MAST: { x: 500, y: 220 },
+            CONFIG_MAST: { x: 160, y: 380 },
+            ACC_MAST: { x: 720, y: 220 },
+            ADDRESS_MAST: { x: 720, y: 380 },
+            ORDER_HEAD: { x: 380, y: 380 },
+            ORDER_BODY: { x: 380, y: 520 },
+            LHSSYS_USER_APP_KEY_VALIDATION: { x: 560, y: 520 },
+          };
+
+          const tableColors = Object.fromEntries(DB_TABLES.map(t => [t.name, t.color]));
+
+          return (
+            <div className="overflow-x-auto pb-4">
+              <svg width={920} height={640} className="mx-auto block">
+                <defs>
+                  <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L8,3 z" fill="#475569" />
+                  </marker>
+                </defs>
+                
+                {/* Relations */}
+                {ER_RELATIONS.map((rel, i) => {
+                  const f = positions[rel.from], t = positions[rel.to];
+                  if (!f || !t) return null;
+                  const isHov = hovered === rel.from || hovered === rel.to;
+                  const mx = (f.x + 80 + t.x + 80) / 2, my = (f.y + 22 + t.y + 22) / 2;
+                  return (
+                    <g key={i}>
+                      <line 
+                        x1={f.x + 80} y1={f.y + 22} x2={t.x + 80} y2={t.y + 22}
+                        stroke={isHov ? "#6366f1" : "#1e293b"} 
+                        strokeWidth={isHov ? 2 : 1.5}
+                        markerEnd="url(#arrow)" 
+                        strokeDasharray={isHov ? "0" : "4,3"} 
+                      />
+                      {isHov && (
+                        <text x={mx} y={my - 4} textAnchor="middle" fontSize={10} fill="#94a3b8" className="font-mono">{rel.label}</text>
+                      )}
+                    </g>
+                  );
+                })}
+
+                {/* Nodes */}
+                {Object.entries(positions).map(([name, pos]) => {
+                  const color = tableColors[name] || "#6366f1";
+                  const table = DB_TABLES.find(t => t.name === name);
+                  const isHov = hovered === name;
+                  return (
+                    <g 
+                      key={name} 
+                      onMouseEnter={() => setHovered(name)} 
+                      onMouseLeave={() => setHovered(null)}
+                      className="cursor-pointer"
+                    >
+                      <rect 
+                        x={pos.x} y={pos.y} width={160} height={44} rx={8} ry={8} 
+                        fill={isHov ? "#1e293b" : "#0f172a"} 
+                        stroke={isHov ? color : "#1e293b"} 
+                        strokeWidth={isHov ? 2 : 1.5} 
+                      />
+                      <rect x={pos.x} y={pos.y} width={5} height={44} rx={3} fill={color} />
+                      <circle cx={pos.x + 15} cy={pos.y + 14} r={4} fill={color} />
+                      <text 
+                        x={pos.x + 26} y={pos.y + 18} 
+                        fontSize={10} fontWeight="700" fill="#f1f5f9" className="font-mono"
+                      >
+                        {name.length > 18 ? name.slice(0, 16) + "…" : name}
+                      </text>
+                      <text x={pos.x + 26} y={pos.y + 32} fontSize={9} fill="#64748b" className="font-mono">
+                        {table ? `${table.columns.length} cols` : ""}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
+              
+              <div className="mt-6 flex flex-wrap gap-3 justify-center">
+                {ER_RELATIONS.map((rel, i) => (
+                  <div key={i} className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-[11px] text-slate-400 flex items-center gap-1.5">
+                    <span className="text-indigo-400 font-bold font-mono">{rel.from}</span>
+                    <span className="text-slate-600">→</span>
+                    <span className="text-emerald-400 font-bold font-mono">{rel.to}</span>
+                    <span className="text-slate-500 ml-1">{rel.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        };
+
+        // ─── BUILTINS TABLE ──────────────────────────────────────────────────────────
+
+        const BuiltinsView = () => {
+          const [search, setSearch] = useState("");
+          const [catFilter, setCatFilter] = useState("All");
+          const cats = ["All", ...Array.from(new Set(BUILTINS.map(b => b.category)))];
+          const filtered = BUILTINS.filter(b =>
+            (catFilter === "All" || b.category === catFilter) &&
+            (b.name.toLowerCase().includes(search.toLowerCase()) || b.use.toLowerCase().includes(search.toLowerCase()))
+          );
+
+          return (
+            <div>
+              <div className="flex flex-wrap gap-3 mb-5">
+                <div className="relative flex-1 min-w-[200px]">
+                  <input 
+                    value={search} 
+                    onChange={e => setSearch(e.target.value)} 
+                    placeholder="Search builtins..." 
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-4 pr-10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+                  />
+                  <svg className="w-4 h-4 text-slate-600 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {cats.map(c => (
+                    <button 
+                      key={c} 
+                      onClick={() => setCatFilter(c)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${catFilter === c ? 'text-white border-current' : 'text-slate-500 border-slate-700 hover:border-slate-500'}`}
+                      style={{ backgroundColor: catFilter === c ? `${categoryColor(c)}33` : 'transparent', borderColor: catFilter === c ? categoryColor(c) : undefined, color: catFilter === c ? categoryColor(c) : undefined }}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                    <tr>
+                      {["#", "Built-In Name", "Category", "Syntax", "Use"].map(h => (
+                        <th key={h} className="p-3 font-bold uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {filtered.map((b) => (
+                      <tr key={b.name} className="hover:bg-slate-900/50">
+                        <td className="p-3 text-slate-500 font-mono">{b.no}</td>
+                        <td className="p-3 font-bold text-violet-400 font-mono">{b.name}</td>
+                        <td className="p-3"><Pill color={categoryColor(b.category)}>{b.category}</Pill></td>
+                        <td className="p-3 font-mono text-sky-400 text-[11px] max-w-xs truncate">{b.syntax}</td>
+                        <td className="p-3 text-slate-400 max-w-xs">{b.use}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-slate-600 text-xs mt-3">Showing {filtered.length} of {BUILTINS.length} builtins</p>
+            </div>
+          );
+        };
+
+        // ─── FRAME / ITEM TYPES ───────────────────────────────────────────────────────
+
+        const TypeGrid = ({ data, colorOffset = 0 }) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {data.map((item, i) => {
+              const color = PALETTE[(i + colorOffset) % PALETTE.length];
+              return (
+                <div key={item.type} className="bg-slate-900 border border-slate-800 rounded-xl p-4 border-l-4 transition-transform hover:scale-[1.01]" style={{ borderLeftColor: color }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-slate-600 font-mono text-xs">#{String(item.no).padStart(2, "0")}</span>
+                    <span className="font-mono font-bold text-sm text-slate-100">{item.type}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {item.subtypes.filter(Boolean).map(s => <Pill key={s} color={color}>{s}</Pill>)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+
+        // ─── MAIN APP ─────────────────────────────────────────────────────────────────
+
+        const App = () => {
+          const [activeTab, setActiveTab] = useState("overview");
+          const [selectedTable, setSelectedTable] = useState(DB_TABLES[0]);
+
+          const tabs = [
+            { id: "overview", label: "Overview", icon: "🏠" },
+            { id: "schema", label: "DB Schema", icon: "🗄️" },
+            { id: "er", label: "ER Diagram", icon: "🔗" },
+            { id: "frame", label: "Frame Types", icon: "🖼️" },
+            { id: "items", label: "Item Types", icon: "🧩" },
+            { id: "builtins", label: "Built-Ins", icon: "⚡" },
+            { id: "filters", label: "Filter Flags", icon: "🔍" },
+            { id: "patterns", label: "Input Patterns", icon: "📝" },
+            { id: "library", label: "Library", icon: "📚" },
+          ];
+
+          return (
+            <div className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-indigo-500/30">
+              {/* Top Nav */}
+              <nav className="sticky top-0 z-50 bg-[#050e1f]/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8">
+                <div className="max-w-7xl mx-auto flex items-center">
+                  <div className="flex items-center gap-3 py-4 mr-8 border-r border-slate-800 pr-8">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">
+                      ⚙
+                    </div>
+                    <div>
+                      <div className="font-mono font-bold text-slate-100 text-sm tracking-tight">V7C ERP</div>
+                      <div className="text-[10px] text-slate-500 font-medium">Documentation Portal</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-1 overflow-x-auto no-scrollbar py-1">
+                    {tabs.map(t => (
+                      <button 
+                        key={t.id} 
+                        onClick={() => setActiveTab(t.id)}
+                        className={`flex items-center gap-2 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${activeTab === t.id ? 'tab-active' : 'tab-inactive'}`}
+                      >
+                        <span>{t.icon}</span>
+                        <span>{t.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </nav>
+
+              {/* Content */}
+              <main className="max-w-7xl mx-auto p-4 sm:p-8">
+                
+                {/* OVERVIEW */}
+                {activeTab === "overview" && (
+                  <div className="animate-fade-in">
+                    <div className="text-center mb-12 mt-4">
+                      <div className="text-5xl mb-4 inline-block animate-bounce">⚙️</div>
+                      <h1 className="text-4xl md:text-5xl font-black font-mono gradient-text mb-3">
+                        V7C ERP Documentation
+                      </h1>
+                      <p className="text-slate-400 max-w-2xl mx-auto">
+                        Complete reference for database schema, WMA framework components, and developer tooling.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+                      {[
+                        { icon: "🗄️", label: "DB Tables", value: DB_TABLES.length, color: "#6366f1" },
+                        { icon: "🔗", label: "Relations", value: ER_RELATIONS.length, color: "#8b5cf6" },
+                        { icon: "🖼️", label: "Frame Types", value: FRAME_TYPES.length, color: "#10b981" },
+                        { icon: "🧩", label: "Item Types", value: ITEM_TYPES.length, color: "#f59e0b" },
+                        { icon: "⚡", label: "Built-Ins", value: BUILTINS.length, color: "#ec4899" },
+                        { icon: "📚", label: "Libraries", value: LIBRARIES.length, color: "#14b8a6" },
+                      ].map((s, idx) => (
+                        <div key={idx} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center border-t-4 hover:-translate-y-1 transition-transform duration-300" style={{ borderTopColor: s.color }}>
+                          <div className="text-3xl mb-2">{s.icon}</div>
+                          <div className="text-3xl font-black font-mono mb-1" style={{ color: s.color }}>{s.value}</div>
+                          <div className="text-slate-500 text-xs font-bold uppercase tracking-wider">{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                        <h3 className="text-slate-100 font-mono font-bold mb-4 flex items-center gap-2">
+                          <span>📦</span> Database Tables
+                        </h3>
+                        <div className="space-y-1 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                          {DB_TABLES.map(t => (
+                            <div 
+                              key={t.name} 
+                              onClick={() => { setSelectedTable(t); setActiveTab("schema"); }}
+                              className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-800 cursor-pointer group transition-colors"
+                            >
+                              <div className="w-2 h-2 rounded-full flex-shrink-0 group-hover:scale-125 transition-transform" style={{ backgroundColor: t.color }}></div>
+                              <span className="font-mono text-sm text-slate-300 group-hover:text-white flex-1">{t.name}</span>
+                              <span className="text-[10px] text-slate-600 font-mono">{t.columns.length} cols</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                        <h3 className="text-slate-100 font-mono font-bold mb-4 flex items-center gap-2">
+                          <span>🔗</span> Entity Relationships
+                        </h3>
+                        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                          {ER_RELATIONS.map((r, i) => (
+                            <div key={i} className="flex items-center gap-2 text-xs p-2 rounded hover:bg-slate-800/50">
+                              <span className="font-mono font-bold text-indigo-400">{r.from}</span>
+                              <span className="text-slate-600">—{r.label}—▶</span>
+                              <span className="font-mono font-bold text-emerald-400">{r.to}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SCHEMA */}
+                {activeTab === "schema" && (
+                  <div className="animate-fade-in">
+                    <SectionHeader icon="🗄️" title="Database Schema" subtitle="Oracle ERP table definitions with columns, types, keys and constraints" count={DB_TABLES.length} />
+                    <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+                      <div className="flex flex-col gap-3 h-[calc(100vh-220px)] overflow-y-auto pr-2 custom-scrollbar">
+                        {DB_TABLES.map(t => (
+                          <TableCard key={t.name} table={t} selected={selectedTable?.name === t.name} onSelect={setSelectedTable} />
+                        ))}
+                      </div>
+                      <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 lg:sticky lg:top-24 h-fit min-h-[500px]">
+                        {selectedTable ? <TableDetail table={selectedTable} /> : (
+                          <div className="h-full flex items-center justify-center text-slate-600">
+                            Select a table to view details
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ER DIAGRAM */}
+                {activeTab === "er" && (
+                  <div className="animate-fade-in">
+                    <SectionHeader icon="🔗" title="ER Diagram" subtitle="Entity-Relationship visualization — hover nodes to highlight connections" />
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 overflow-hidden">
+                      <ERDiagram />
+                    </div>
+                    <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-3">
+                      {DB_TABLES.map(t => (
+                        <div key={t.name} className="bg-slate-900 border border-slate-800 rounded-lg p-3 border-l-4" style={{ borderLeftColor: t.color }}>
+                          <div className="font-mono text-xs font-bold text-slate-200 truncate">{t.name}</div>
+                          <div className="text-[10px] text-slate-500 truncate">{t.description}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* FRAME TYPES */}
+                {activeTab === "frame" && (
+                  <div className="animate-fade-in">
+                    <SectionHeader icon="🖼️" title="Frame Types" subtitle="WMA framework canvas and layout types with their sub-types" count={FRAME_TYPES.length} />
+                    <TypeGrid data={FRAME_TYPES} colorOffset={0} />
+                  </div>
+                )}
+
+                {/* ITEM TYPES */}
+                {activeTab === "items" && (
+                  <div className="animate-fade-in">
+                    <SectionHeader icon="🧩" title="Item Types" subtitle="UI component types available in the WMA framework" count={ITEM_TYPES.length} />
+                    <TypeGrid data={ITEM_TYPES} colorOffset={3} />
+                  </div>
+                )}
+
+                {/* BUILTINS */}
+                {activeTab === "builtins" && (
+                  <div className="animate-fade-in">
+                    <SectionHeader icon="⚡" title="Built-In Functions" subtitle="Framework built-in commands for frames, items, pages, and records" count={BUILTINS.length} />
+                    <BuiltinsView />
+                  </div>
+                )}
+
+                {/* FILTER FLAGS */}
+                {activeTab === "filters" && (
+                  <div className="animate-fade-in">
+                    <SectionHeader icon="🔍" title="Filter Flags" subtitle="Frame filter flag keywords separated by semicolons" count={FILTER_FLAGS.length} />
+                    <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden mb-6">
+                      <table className="w-full text-left text-sm">
+                        <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                          <tr>
+                            {["Flag", "Use", "Can Use In"].map(h => <th key={h} className="p-4 font-bold uppercase text-xs tracking-wider">{h}</th>)}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800">
+                          {FILTER_FLAGS.map((f) => (
+                            <tr key={f.flag} className="hover:bg-slate-900/50">
+                              <td className="p-4"><Badge color="#6366f1">{f.flag}</Badge></td>
+                              <td className="p-4 text-slate-300">{f.use}</td>
+                              <td className="p-4 flex flex-wrap gap-2">
+                                {f.canUseIn.split(",").map(u => <Pill key={u} color="#10b981">{u.trim()}</Pill>)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
+                      <span className="text-amber-500 font-bold">⚠</span>
+                      <div className="text-sm text-amber-200/80">
+                        Frame Filter Flags must be separated by <code className="bg-slate-900 px-1.5 py-0.5 rounded text-amber-400 font-mono text-xs">;</code> (semicolon) only
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* INPUT PATTERNS */}
+                {activeTab === "patterns" && (
+                  <div className="animate-fade-in">
+                    <SectionHeader icon="📝" title="Input Patterns" subtitle="Keywords used to configure text inputs, dropdowns, checkboxes and radio buttons" count={INPUT_PATTERNS.length} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {INPUT_PATTERNS.map((p, i) => (
+                        <div key={p.keyword} className="bg-slate-900 border border-slate-800 rounded-xl p-5 border-l-4" style={{ borderLeftColor: PALETTE[i % PALETTE.length] }}>
+                          <div className="flex items-center gap-3 mb-2">
+                            <Badge color={PALETTE[i % PALETTE.length]}>{p.keyword}</Badge>
+                            <span className="text-slate-600 text-xs">#{p.no}</span>
+                          </div>
+                          <p className="text-sm text-slate-400 leading-relaxed">{p.use}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* LIBRARY */}
+                {activeTab === "library" && (
+                  <div className="animate-fade-in">
+                    <SectionHeader icon="📚" title="JavaScript Libraries" subtitle="AJS and OAJS helper library functions for client-side validation and operations" count={LIBRARIES.length} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {LIBRARIES.map((lib) => (
+                        <div key={lib.name} className="bg-slate-900 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-slate-600 font-mono text-xs">#{lib.no}</span>
+                            <span className="font-mono font-bold text-sm text-violet-400">{lib.name}</span>
+                          </div>
+                          <p className="text-sm text-slate-400 mb-3 min-h-[40px]">{lib.use}</p>
+                          {lib.syntax && (
+                            <code className="block bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-sky-400 font-mono break-all">
+                              {lib.syntax}
+                            </code>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </main>
+
+              <footer className="border-t border-slate-800 py-8 mt-12 text-center">
+                <p className="text-slate-600 text-xs">
+                  V7C ERP Documentation Portal — Oracle DB Schema + WMA Framework Reference
+                </p>
+              </footer>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+    
+    <style>
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.4s ease-out forwards;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+</body>
+</html>
