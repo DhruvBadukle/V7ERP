@@ -3485,106 +3485,533 @@
       );
     };
 
-    // ─── ER DIAGRAM ───────────────────────────────────────────────────────────────
+       // ─── ER DIAGRAM// ─── ER DIAGRAM ───────────────────────────────────────────────────────────────
 
-    const ERDiagram = () => {
-      const [hovered, setHovered] = useState(null);
+const ERDiagram = () => {
+  const [selectedGroup, setSelectedGroup] = useState("all");
+  const [hoveredTable, setHoveredTable] = useState(null);
+  const [selectedTable, setSelectedTable] = useState(null);
 
-      // Responsive coordinates
-      const positions = {
-        ENTITY_MAST: { x: 340, y: 60 },
-        USER_MAST: { x: 680, y: 60 },
-        DIV_MAST: { x: 160, y: 220 },
-        ACC_YEAR_MAST: { x: 500, y: 220 },
-        CONFIG_MAST: { x: 160, y: 380 },
-        ACC_MAST: { x: 720, y: 220 },
-        ADDRESS_MAST: { x: 720, y: 380 },
-        ORDER_HEAD: { x: 380, y: 380 },
-        ORDER_BODY: { x: 380, y: 520 },
-        LHSSYS_USER_APP_KEY_VALIDATION: { x: 560, y: 520 },
-      };
+  // All tables
+  const tableGroups = {
+    core: {
+      label: "🏢 Core",
+      color: "#3b82f6",
+      tables: [
+        { id: "ENTITY_MAST", name: "ENTITY_MAST", desc: "Company Master", cols: 58 },
+        { id: "USER_MAST", name: "USER_MAST", desc: "User Accounts", cols: 47 },
+        { id: "DIV_MAST", name: "DIV_MAST", desc: "Branch/Division", cols: 52 },
+        { id: "ACC_YEAR_MAST", name: "ACC_YEAR_MAST", desc: "Fiscal Year", cols: 15 },
+      ]
+    },
+    accounts: {
+      label: "💰 Accounts",
+      color: "#10b981",
+      tables: [
+        { id: "ACC_MAST", name: "ACC_MAST", desc: "Ledger Accounts", cols: 47 },
+        { id: "ADDRESS_MAST", name: "ADDRESS_MAST", desc: "Addresses", cols: 56 },
+        { id: "CONFIG_MAST", name: "CONFIG_MAST", desc: "Voucher Config", cols: 57 },
+        { id: "ACC_TRAN", name: "ACC_TRAN", desc: "Accounting Entries", cols: 95 },
+      ]
+    },
+    purchase: {
+      label: "🛒 Purchase",
+      color: "#f59e0b",
+      tables: [
+        { id: "INDENT_HEAD", name: "INDENT_HEAD", desc: "Indent Header", cols: 25 },
+        { id: "INDENT_BODY", name: "INDENT_BODY", desc: "Indent Items", cols: 56 },
+        { id: "ENQUIRY_HEAD", name: "ENQUIRY_HEAD", desc: "Enquiry Header", cols: 28 },
+        { id: "ENQUIRY_BODY", name: "ENQUIRY_BODY", desc: "Enquiry Items", cols: 42 },
+        { id: "ORDER_HEAD", name: "ORDER_HEAD", desc: "Order Header", cols: 82 },
+        { id: "ORDER_BODY", name: "ORDER_BODY", desc: "Order Items", cols: 95 },
+        { id: "ORDER_AFIELD", name: "ORDER_AFIELD", desc: "Additional Fields", cols: 17 },
+      ]
+    },
+    inventory: {
+      label: "📦 Inventory",
+      color: "#ef4444",
+      tables: [
+        { id: "ITEMTRAN_HEAD", name: "ITEMTRAN_HEAD", desc: "Stock Movement H", cols: 82 },
+        { id: "ITEMTRAN_BODY", name: "ITEMTRAN_BODY", desc: "Stock Movement B", cols: 118 },
+        { id: "GATETRAN_HEAD", name: "GATETRAN_HEAD", desc: "Gate Entry H", cols: 62 },
+        { id: "GATETRAN_BODY", name: "GATETRAN_BODY", desc: "Gate Entry B", cols: 52 },
+        { id: "WB_HEAD", name: "WB_HEAD", desc: "Weighbridge", cols: 52 },
+        { id: "QCTRAN_HEAD", name: "QCTRAN_HEAD", desc: "Quality Control H", cols: 52 },
+        { id: "QCTRAN_BODY", name: "QCTRAN_BODY", desc: "QC Test Results", cols: 28 },
+      ]
+    },
+    production: {
+      label: "🏭 Production",
+      color: "#8b5cf6",
+      tables: [
+        { id: "PROD_ORDER_HEAD", name: "PROD_ORDER_HEAD", desc: "Prod Order H", cols: 35 },
+        { id: "PROD_ORDER_BODY", name: "PROD_ORDER_BODY", desc: "Prod Order B", cols: 52 },
+        { id: "PROD_ORDER_ROUTING", name: "PROD_ORDER_ROUTING", desc: "Routing", cols: 30 },
+        { id: "PROD_ORDER_PLAN", name: "PROD_ORDER_PLAN", desc: "Planning", cols: 32 },
+        { id: "PROD_ORDER_ALLOC", name: "PROD_ORDER_ALLOC", desc: "Allocation", cols: 42 },
+        { id: "PROD_TRAN", name: "PROD_TRAN", desc: "Production Tran", cols: 95 },
+        { id: "PROD_SETUP_HEAD", name: "PROD_SETUP_HEAD", desc: "Setup H", cols: 28 },
+        { id: "PROD_SETUP_BODY", name: "PROD_SETUP_BODY", desc: "Setup B", cols: 32 },
+        { id: "PROD_SETUP_EQPT", name: "PROD_SETUP_EQPT", desc: "Equipment", cols: 38 },
+        { id: "PROD_SETUP_ITEM", name: "PROD_SETUP_ITEM", desc: "Setup Items", cols: 35 },
+        { id: "PROD_SETUP_PLAN", name: "PROD_SETUP_PLAN", desc: "Setup Plan", cols: 22 },
+        { id: "PROD_SETUP_CYCLETIME", name: "PROD_SETUP_CYCLETIME", desc: "Cycle Time", cols: 25 },
+        { id: "PROD_SETUP_CALENDER", name: "PROD_SETUP_CALENDER", desc: "Calendar", cols: 22 },
+        { id: "PROD_ROUTING_MAST", name: "PROD_ROUTING_MAST", desc: "Route Master", cols: 20 },
+        { id: "PROD_ROUTING_ALLOC_MAST", name: "PROD_ROUTING_ALLOC_MAST", desc: "Route Alloc", cols: 28 },
+        { id: "PROD_PLANT_PLAN", name: "PROD_PLANT_PLAN", desc: "Plant Plan", cols: 20 },
+        { id: "PROD_ITEM_PROCESS_MAST", name: "PROD_ITEM_PROCESS_MAST", desc: "Item Process", cols: 25 },
+        { id: "PROD_ITEM_GROUP_MAST", name: "PROD_ITEM_GROUP_MAST", desc: "Item Group", cols: 18 },
+        { id: "PRODTRAN_PROCESS", name: "PRODTRAN_PROCESS", desc: "Legacy Prod", cols: 58 },
+      ]
+    },
+    logistics: {
+      label: "🚚 Logistics",
+      color: "#f97316",
+      tables: [
+        { id: "FREIGHT_ORDER_HEAD", name: "FREIGHT_ORDER_HEAD", desc: "Freight Order", cols: 45 },
+      ]
+    },
+    mobile: {
+      label: "📱 Mobile",
+      color: "#ec4899",
+      tables: [
+        { id: "LHSSYS_USER_APP_KEY_VALIDATION", name: "LHSSYS_USER_APP_KEY_VALIDATION", desc: "Mobile App Keys", cols: 28 },
+      ]
+    }
+  };
 
-      const tableColors = Object.fromEntries(DB_TABLES.map(t => [t.name, t.color]));
+  const allTables = Object.entries(tableGroups).flatMap(([groupKey, group]) =>
+    group.tables.map(t => ({ ...t, group: groupKey, groupColor: group.color }))
+  );
 
-      return (
-        <div className="overflow-x-auto pb-4">
-          <svg width={920} height={640} className="mx-auto block">
-            <defs>
-              <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
-                <path d="M0,0 L0,6 L8,3 z" fill="#475569" />
-              </marker>
-            </defs>
+  const visibleTables = selectedGroup === "all" 
+    ? allTables 
+    : allTables.filter(t => t.group === selectedGroup);
 
-            {/* Relations */}
-            {ER_RELATIONS.map((rel, i) => {
-              const f = positions[rel.from], t = positions[rel.to];
-              if (!f || !t) return null;
-              const isHov = hovered === rel.from || hovered === rel.to;
-              const mx = (f.x + 80 + t.x + 80) / 2, my = (f.y + 22 + t.y + 22) / 2;
-              return (
-                <g key={i}>
-                  <line
-                    x1={f.x + 80} y1={f.y + 22} x2={t.x + 80} y2={t.y + 22}
-                    stroke={isHov ? "#6366f1" : "#1e293b"}
-                    strokeWidth={isHov ? 2 : 1.5}
-                    markerEnd="url(#arrow)"
-                    strokeDasharray={isHov ? "0" : "4,3"}
-                  />
-                  {isHov && (
-                    <text x={mx} y={my - 4} textAnchor="middle" fontSize={10} fill="#94a3b8" className="font-mono">{rel.label}</text>
-                  )}
-                </g>
-              );
-            })}
+  const visibleIds = new Set(visibleTables.map(t => t.id));
 
-            {/* Nodes */}
-            {Object.entries(positions).map(([name, pos]) => {
-              const color = tableColors[name] || "#6366f1";
-              const table = DB_TABLES.find(t => t.name === name);
-              const isHov = hovered === name;
-              return (
-                <g
-                  key={name}
-                  onMouseEnter={() => setHovered(name)}
-                  onMouseLeave={() => setHovered(null)}
-                  className="cursor-pointer"
+  const allRelations = [
+    { from: "ENTITY_MAST", to: "DIV_MAST", label: "1:N" },
+    { from: "ENTITY_MAST", to: "ACC_YEAR_MAST", label: "1:N" },
+    { from: "ENTITY_MAST", to: "CONFIG_MAST", label: "1:N" },
+    { from: "USER_MAST", to: "ADDRESS_MAST", label: "creates" },
+    { from: "USER_MAST", to: "LHSSYS_USER_APP_KEY_VALIDATION", label: "1:N" },
+    { from: "ACC_MAST", to: "ADDRESS_MAST", label: "1:N" },
+    { from: "ACC_MAST", to: "ORDER_HEAD", label: "places" },
+    { from: "ACC_MAST", to: "ACC_TRAN", label: "posts" },
+    { from: "CONFIG_MAST", to: "ORDER_HEAD", label: "configures" },
+    { from: "INDENT_HEAD", to: "INDENT_BODY", label: "1:N" },
+    { from: "INDENT_BODY", to: "ENQUIRY_BODY", label: "converts" },
+    { from: "ENQUIRY_HEAD", to: "ENQUIRY_BODY", label: "1:N" },
+    { from: "ENQUIRY_BODY", to: "ORDER_BODY", label: "→order" },
+    { from: "ORDER_HEAD", to: "ORDER_BODY", label: "1:N" },
+    { from: "ORDER_HEAD", to: "ORDER_AFIELD", label: "1:N" },
+    { from: "ORDER_HEAD", to: "ITEMTRAN_HEAD", label: "executes" },
+    { from: "ITEMTRAN_HEAD", to: "ITEMTRAN_BODY", label: "1:N" },
+    { from: "ITEMTRAN_BODY", to: "GATETRAN_BODY", label: "gate" },
+    { from: "GATETRAN_HEAD", to: "GATETRAN_BODY", label: "1:N" },
+    { from: "GATETRAN_HEAD", to: "WB_HEAD", label: "weighs" },
+    { from: "GATETRAN_HEAD", to: "QCTRAN_HEAD", label: "qc" },
+    { from: "QCTRAN_HEAD", to: "QCTRAN_BODY", label: "1:N" },
+    { from: "FREIGHT_ORDER_HEAD", to: "GATETRAN_HEAD", label: "1:N" },
+    { from: "ORDER_BODY", to: "PROD_ORDER_HEAD", label: "makes" },
+    { from: "PROD_ORDER_HEAD", to: "PROD_ORDER_BODY", label: "1:N" },
+    { from: "PROD_ORDER_HEAD", to: "PROD_ORDER_ROUTING", label: "1:N" },
+    { from: "PROD_ORDER_HEAD", to: "PROD_ORDER_PLAN", label: "1:N" },
+    { from: "PROD_ORDER_BODY", to: "PROD_TRAN", label: "produces" },
+    { from: "PROD_SETUP_HEAD", to: "PROD_SETUP_BODY", label: "1:N" },
+    { from: "PROD_SETUP_HEAD", to: "PROD_SETUP_EQPT", label: "1:N" },
+    { from: "PROD_SETUP_EQPT", to: "PROD_SETUP_ITEM", label: "1:N" },
+    { from: "PROD_SETUP_HEAD", to: "PROD_SETUP_PLAN", label: "1:N" },
+    { from: "PROD_ROUTING_MAST", to: "PROD_ROUTING_ALLOC_MAST", label: "1:N" },
+    { from: "PROD_ITEM_GROUP_MAST", to: "PROD_ROUTING_MAST", label: "1:N" },
+    { from: "PROD_ITEM_GROUP_MAST", to: "PROD_ITEM_PROCESS_MAST", label: "1:N" },
+  ];
+
+  const visibleRelations = allRelations.filter(r => 
+    visibleIds.has(r.from) && visibleIds.has(r.to)
+  );
+
+  // Auto-fit layout calculation
+  const getOptimalLayout = () => {
+    const count = visibleTables.length;
+    const containerWidth = window.innerWidth - 80;
+    const containerHeight = window.innerHeight - 200;
+    
+    // Calculate optimal columns based on screen size and table count
+    let cols;
+    if (selectedGroup !== "all") {
+      cols = Math.min(count, 4); // Max 4 per row for single group
+    } else {
+      cols = Math.ceil(Math.sqrt(count * 1.5)); // Golden ratio for all tables
+    }
+    
+    const rows = Math.ceil(count / cols);
+    
+    // Calculate card size to fit screen
+    const cardWidth = Math.min(180, Math.floor((containerWidth - (cols - 1) * 15) / cols));
+    const cardHeight = Math.min(90, Math.floor((containerHeight - (rows - 1) * 20) / rows));
+    
+    return { cols, cardWidth, cardHeight, gapX: 15, gapY: 20 };
+  };
+
+  const layout = getOptimalLayout();
+
+  const getTablePosition = (index) => ({
+    x: 20 + (index % layout.cols) * (layout.cardWidth + layout.gapX),
+    y: 20 + Math.floor(index / layout.cols) * (layout.cardHeight + layout.gapY)
+  });
+
+  const positions = {};
+  visibleTables.forEach((t, i) => {
+    positions[t.id] = { ...getTablePosition(i), ...t, ...layout };
+  });
+
+  const getConnectionPoint = (from, to) => {
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const angle = Math.atan2(dy, dx);
+    const w = layout.cardWidth, h = layout.cardHeight;
+    return {
+      x1: from.x + w/2 + (w/2 - 3) * Math.cos(angle),
+      y1: from.y + h/2 + (h/2 - 3) * Math.sin(angle),
+      x2: to.x + w/2 - (w/2 - 3) * Math.cos(angle),
+      y2: to.y + h/2 - (h/2 - 3) * Math.sin(angle)
+    };
+  };
+
+  const isHighlighted = (tableId) => {
+    if (!hoveredTable) return false;
+    if (hoveredTable === tableId) return true;
+    return visibleRelations.some(r => 
+      (r.from === hoveredTable && r.to === tableId) ||
+      (r.to === hoveredTable && r.from === tableId)
+    );
+  };
+
+  const svgWidth = Math.max(...Object.values(positions).map(p => p.x)) + layout.cardWidth + 40;
+  const svgHeight = Math.max(...Object.values(positions).map(p => p.y)) + layout.cardHeight + 40;
+
+  return (
+    <div style={{ 
+      background: "#020617", 
+      height: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden",
+      fontFamily: "Inter, system-ui, sans-serif"
+    }}>
+      
+      {/* Compact Header */}
+      <div style={{ 
+        display: "flex", 
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "12px 20px",
+        borderBottom: "1px solid #1e293b",
+        background: "#0f172a",
+        flexShrink: 0
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <h1 style={{ 
+            margin: 0, 
+            color: "#f8fafc", 
+            fontSize: "18px",
+            fontWeight: "800"
+          }}>
+            🗄️ V7C ERP
+          </h1>
+          <span style={{ color: "#64748b", fontSize: "12px" }}>
+            {visibleTables.length} tables
+          </span>
+        </div>
+
+        {/* Filter Buttons - Compact */}
+        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+          <button
+            onClick={() => setSelectedGroup("all")}
+            style={{
+              padding: "6px 12px",
+              borderRadius: "6px",
+              border: "1px solid " + (selectedGroup === "all" ? "#6366f1" : "#334155"),
+              background: selectedGroup === "all" ? "#6366f1" : "transparent",
+              color: "#fff",
+              fontSize: "11px",
+              fontWeight: "600",
+              cursor: "pointer"
+            }}
+          >
+            ALL
+          </button>
+          {Object.entries(tableGroups).map(([key, group]) => (
+            <button
+              key={key}
+              onClick={() => setSelectedGroup(key)}
+              style={{
+                padding: "6px 12px",
+                borderRadius: "6px",
+                border: "1px solid " + (selectedGroup === key ? group.color : "#334155"),
+                background: selectedGroup === key ? group.color + "22" : "transparent",
+                color: selectedGroup === key ? group.color : "#94a3b8",
+                fontSize: "11px",
+                fontWeight: "600",
+                cursor: "pointer"
+              }}
+            >
+              {group.label.split(" ")[0]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Diagram - Fits Screen */}
+      <div style={{ 
+        flex: 1,
+        background: "#0f172a",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
+        <svg 
+          width="100%" 
+          height="100%" 
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#64748b" />
+            </marker>
+          </defs>
+
+          {/* Relations */}
+          {visibleRelations.map((rel, i) => {
+            const from = positions[rel.from];
+            const to = positions[rel.to];
+            if (!from || !to) return null;
+
+            const { x1, y1, x2, y2 } = getConnectionPoint(from, to);
+            const isActive = hoveredTable === rel.from || hoveredTable === rel.to;
+            const isDimmed = hoveredTable && !isActive;
+
+            return (
+              <g key={i} opacity={isDimmed ? 0.05 : isActive ? 1 : 0.2}>
+                <line
+                  x1={x1} y1={y1}
+                  x2={x2} y2={y2}
+                  stroke={isActive ? from.groupColor : "#64748b"}
+                  strokeWidth={isActive ? 2.5 : 1}
+                  markerEnd="url(#arrow)"
+                />
+              </g>
+            );
+          })}
+
+          {/* Tables */}
+          {Object.entries(positions).map(([id, pos]) => {
+            const highlighted = isHighlighted(id);
+            const isSelected = selectedTable === id;
+            const dimmed = hoveredTable && !highlighted;
+            const w = pos.cardWidth;
+            const h = pos.cardHeight;
+
+            return (
+              <g
+                key={id}
+                onMouseEnter={() => setHoveredTable(id)}
+                onMouseLeave={() => setHoveredTable(null)}
+                onClick={() => setSelectedTable(isSelected ? null : id)}
+                style={{ cursor: "pointer" }}
+                opacity={dimmed ? 0.3 : 1}
+              >
+                {/* Card */}
+                <rect
+                  x={pos.x} y={pos.y}
+                  width={w} height={h}
+                  rx={8}
+                  fill={isSelected ? "#1e293b" : highlighted ? "#0f172a" : "#020617"}
+                  stroke={isSelected ? pos.groupColor : highlighted ? pos.groupColor : "#334155"}
+                  strokeWidth={isSelected ? 3 : highlighted ? 2 : 1}
+                />
+                
+                {/* Color strip */}
+                <rect
+                  x={pos.x} y={pos.y}
+                  width={4} height={h}
+                  rx={2}
+                  fill={pos.groupColor}
+                />
+                
+                {/* Table name - scaled */}
+                <text
+                  x={pos.x + 10} y={pos.y + h * 0.35}
+                  fill="#f8fafc"
+                  fontSize={Math.max(9, h * 0.16)}
+                  fontWeight="700"
+                  fontFamily="monospace"
                 >
-                  <rect
-                    x={pos.x} y={pos.y} width={160} height={44} rx={8} ry={8}
-                    fill={isHov ? "#1e293b" : "#0f172a"}
-                    stroke={isHov ? color : "#1e293b"}
-                    strokeWidth={isHov ? 2 : 1.5}
-                  />
-                  <rect x={pos.x} y={pos.y} width={5} height={44} rx={3} fill={color} />
-                  <circle cx={pos.x + 15} cy={pos.y + 14} r={4} fill={color} />
-                  <text
-                    x={pos.x + 26} y={pos.y + 18}
-                    fontSize={10} fontWeight="700" fill="#f1f5f9" className="font-mono"
-                  >
-                    {name.length > 18 ? name.slice(0, 16) + "…" : name}
-                  </text>
-                  <text x={pos.x + 26} y={pos.y + 32} fontSize={9} fill="#64748b" className="font-mono">
-                    {table ? `${table.columns.length} cols` : ""}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+                  {pos.name.length > 20 ? pos.name.slice(0, 18) + ".." : pos.name}
+                </text>
+                
+                {/* Description */}
+                <text
+                  x={pos.x + 10} y={pos.y + h * 0.58}
+                  fill="#94a3b8"
+                  fontSize={Math.max(8, h * 0.13)}
+                  fontFamily="sans-serif"
+                >
+                  {pos.desc.length > 25 ? pos.desc.slice(0, 23) + ".." : pos.desc}
+                </text>
 
-          <div className="mt-6 flex flex-wrap gap-3 justify-center">
-            {ER_RELATIONS.map((rel, i) => (
-              <div key={i} className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-[11px] text-slate-400 flex items-center gap-1.5">
-                <span className="text-indigo-400 font-bold font-mono">{rel.from}</span>
-                <span className="text-slate-600">→</span>
-                <span className="text-emerald-400 font-bold font-mono">{rel.to}</span>
-                <span className="text-slate-500 ml-1">{rel.label}</span>
+                {/* Stats */}
+                <text
+                  x={pos.x + 10} y={pos.y + h * 0.82}
+                  fill={pos.groupColor}
+                  fontSize={Math.max(7, h * 0.12)}
+                  fontWeight="bold"
+                  fontFamily="monospace"
+                >
+                  {pos.cols} cols • {visibleRelations.filter(r => r.from === id || r.to === id).length} links
+                </text>
+
+                {/* Selection dot */}
+                {isSelected && (
+                  <circle
+                    cx={pos.x + w - 8} 
+                    cy={pos.y + 8}
+                    r={4}
+                    fill={pos.groupColor}
+                  />
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* Selected Table Panel - Slide from bottom */}
+      {selectedTable && positions[selectedTable] && (
+        <div style={{
+          position: "fixed",
+          bottom: "0",
+          left: "0",
+          right: "0",
+          background: "#0f172a",
+          borderTop: `3px solid ${positions[selectedTable].groupColor}`,
+          padding: "16px 20px",
+          boxShadow: "0 -10px 40px rgba(0,0,0,0.5)",
+          zIndex: 100,
+          maxHeight: "40vh",
+          overflow: "auto"
+        }}>
+          <div style={{ 
+            display: "flex", 
+            alignItems: "flex-start", 
+            gap: "16px",
+            maxWidth: "1200px",
+            margin: "0 auto"
+          }}>
+            <div style={{
+              width: 12,
+              height: 50,
+              borderRadius: 6,
+              background: positions[selectedTable].groupColor,
+              flexShrink: 0
+            }}></div>
+            
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+                <h3 style={{ 
+                  margin: 0, 
+                  color: "#f8fafc", 
+                  fontSize: "18px",
+                  fontFamily: "monospace",
+                  fontWeight: "800"
+                }}>
+                  {positions[selectedTable].name}
+                </h3>
+                <span style={{ 
+                  color: positions[selectedTable].groupColor, 
+                  fontSize: "12px",
+                  background: positions[selectedTable].groupColor + "22",
+                  padding: "2px 8px",
+                  borderRadius: "4px"
+                }}>
+                  {tableGroups[positions[selectedTable].group].label}
+                </span>
+                <button
+                  onClick={() => setSelectedTable(null)}
+                  style={{
+                    marginLeft: "auto",
+                    background: "#1e293b",
+                    border: "none",
+                    color: "#94a3b8",
+                    width: 28,
+                    height: 28,
+                    borderRadius: 6,
+                    fontSize: "16px",
+                    cursor: "pointer"
+                  }}
+                >
+                  ×
+                </button>
               </div>
-            ))}
+              
+              <p style={{ margin: "0 0 12px 0", color: "#94a3b8", fontSize: "13px" }}>
+                {positions[selectedTable].desc}
+              </p>
+
+              {/* Connected tables horizontal list */}
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                <span style={{ color: "#64748b", fontSize: "11px", fontWeight: "bold" }}>LINKED TO:</span>
+                {visibleRelations
+                  .filter(r => r.from === selectedTable || r.to === selectedTable)
+                  .slice(0, 6)
+                  .map((r, i) => {
+                    const otherId = r.from === selectedTable ? r.to : r.from;
+                    const other = positions[otherId];
+                    return other ? (
+                      <span key={i} style={{
+                        background: "#1e293b",
+                        color: "#e2e8f0",
+                        padding: "4px 10px",
+                        borderRadius: "6px",
+                        fontSize: "11px",
+                        fontFamily: "monospace",
+                        border: `1px solid ${other.groupColor}44`
+                      }}>
+                        {other.name}
+                      </span>
+                    ) : null;
+                  })}
+              </div>
+            </div>
           </div>
         </div>
-      );
-    };
+      )}
 
+      {/* Hint */}
+      {!selectedTable && (
+        <div style={{ 
+          position: "fixed",
+          bottom: "12px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "#1e293b",
+          padding: "8px 16px",
+          borderRadius: "20px",
+          color: "#64748b",
+          fontSize: "12px",
+          pointerEvents: "none"
+        }}>
+          🖱️ Click table for details • 👆 Hover to highlight
+        </div>
+      )}
+    </div>
+  );
+};
     // ─── BUILTINS TABLE ──────────────────────────────────────────────────────────
 
     const BuiltinsView = () => {
@@ -4001,3 +4428,4 @@
 </body>
 
 </html>
+
