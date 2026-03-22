@@ -3485,533 +3485,534 @@
       );
     };
 
-       // ─── ER DIAGRAM// ─── ER DIAGRAM ───────────────────────────────────────────────────────────────
+    // ─── ER DIAGRAM// ─── ER DIAGRAM ───────────────────────────────────────────────────────────────
 
-const ERDiagram = () => {
-  const [selectedGroup, setSelectedGroup] = useState("all");
-  const [hoveredTable, setHoveredTable] = useState(null);
-  const [selectedTable, setSelectedTable] = useState(null);
+    const ERDiagram = () => {
+      const [selectedGroup, setSelectedGroup] = useState("all");
+      const [hoveredTable, setHoveredTable] = useState(null);
+      const [selectedTable, setSelectedTable] = useState(null);
 
-  // All tables
-  const tableGroups = {
-    core: {
-      label: "🏢 Core",
-      color: "#3b82f6",
-      tables: [
-        { id: "ENTITY_MAST", name: "ENTITY_MAST", desc: "Company Master", cols: 58 },
-        { id: "USER_MAST", name: "USER_MAST", desc: "User Accounts", cols: 47 },
-        { id: "DIV_MAST", name: "DIV_MAST", desc: "Branch/Division", cols: 52 },
-        { id: "ACC_YEAR_MAST", name: "ACC_YEAR_MAST", desc: "Fiscal Year", cols: 15 },
-      ]
-    },
-    accounts: {
-      label: "💰 Accounts",
-      color: "#10b981",
-      tables: [
-        { id: "ACC_MAST", name: "ACC_MAST", desc: "Ledger Accounts", cols: 47 },
-        { id: "ADDRESS_MAST", name: "ADDRESS_MAST", desc: "Addresses", cols: 56 },
-        { id: "CONFIG_MAST", name: "CONFIG_MAST", desc: "Voucher Config", cols: 57 },
-        { id: "ACC_TRAN", name: "ACC_TRAN", desc: "Accounting Entries", cols: 95 },
-      ]
-    },
-    purchase: {
-      label: "🛒 Purchase",
-      color: "#f59e0b",
-      tables: [
-        { id: "INDENT_HEAD", name: "INDENT_HEAD", desc: "Indent Header", cols: 25 },
-        { id: "INDENT_BODY", name: "INDENT_BODY", desc: "Indent Items", cols: 56 },
-        { id: "ENQUIRY_HEAD", name: "ENQUIRY_HEAD", desc: "Enquiry Header", cols: 28 },
-        { id: "ENQUIRY_BODY", name: "ENQUIRY_BODY", desc: "Enquiry Items", cols: 42 },
-        { id: "ORDER_HEAD", name: "ORDER_HEAD", desc: "Order Header", cols: 82 },
-        { id: "ORDER_BODY", name: "ORDER_BODY", desc: "Order Items", cols: 95 },
-        { id: "ORDER_AFIELD", name: "ORDER_AFIELD", desc: "Additional Fields", cols: 17 },
-      ]
-    },
-    inventory: {
-      label: "📦 Inventory",
-      color: "#ef4444",
-      tables: [
-        { id: "ITEMTRAN_HEAD", name: "ITEMTRAN_HEAD", desc: "Stock Movement H", cols: 82 },
-        { id: "ITEMTRAN_BODY", name: "ITEMTRAN_BODY", desc: "Stock Movement B", cols: 118 },
-        { id: "GATETRAN_HEAD", name: "GATETRAN_HEAD", desc: "Gate Entry H", cols: 62 },
-        { id: "GATETRAN_BODY", name: "GATETRAN_BODY", desc: "Gate Entry B", cols: 52 },
-        { id: "WB_HEAD", name: "WB_HEAD", desc: "Weighbridge", cols: 52 },
-        { id: "QCTRAN_HEAD", name: "QCTRAN_HEAD", desc: "Quality Control H", cols: 52 },
-        { id: "QCTRAN_BODY", name: "QCTRAN_BODY", desc: "QC Test Results", cols: 28 },
-      ]
-    },
-    production: {
-      label: "🏭 Production",
-      color: "#8b5cf6",
-      tables: [
-        { id: "PROD_ORDER_HEAD", name: "PROD_ORDER_HEAD", desc: "Prod Order H", cols: 35 },
-        { id: "PROD_ORDER_BODY", name: "PROD_ORDER_BODY", desc: "Prod Order B", cols: 52 },
-        { id: "PROD_ORDER_ROUTING", name: "PROD_ORDER_ROUTING", desc: "Routing", cols: 30 },
-        { id: "PROD_ORDER_PLAN", name: "PROD_ORDER_PLAN", desc: "Planning", cols: 32 },
-        { id: "PROD_ORDER_ALLOC", name: "PROD_ORDER_ALLOC", desc: "Allocation", cols: 42 },
-        { id: "PROD_TRAN", name: "PROD_TRAN", desc: "Production Tran", cols: 95 },
-        { id: "PROD_SETUP_HEAD", name: "PROD_SETUP_HEAD", desc: "Setup H", cols: 28 },
-        { id: "PROD_SETUP_BODY", name: "PROD_SETUP_BODY", desc: "Setup B", cols: 32 },
-        { id: "PROD_SETUP_EQPT", name: "PROD_SETUP_EQPT", desc: "Equipment", cols: 38 },
-        { id: "PROD_SETUP_ITEM", name: "PROD_SETUP_ITEM", desc: "Setup Items", cols: 35 },
-        { id: "PROD_SETUP_PLAN", name: "PROD_SETUP_PLAN", desc: "Setup Plan", cols: 22 },
-        { id: "PROD_SETUP_CYCLETIME", name: "PROD_SETUP_CYCLETIME", desc: "Cycle Time", cols: 25 },
-        { id: "PROD_SETUP_CALENDER", name: "PROD_SETUP_CALENDER", desc: "Calendar", cols: 22 },
-        { id: "PROD_ROUTING_MAST", name: "PROD_ROUTING_MAST", desc: "Route Master", cols: 20 },
-        { id: "PROD_ROUTING_ALLOC_MAST", name: "PROD_ROUTING_ALLOC_MAST", desc: "Route Alloc", cols: 28 },
-        { id: "PROD_PLANT_PLAN", name: "PROD_PLANT_PLAN", desc: "Plant Plan", cols: 20 },
-        { id: "PROD_ITEM_PROCESS_MAST", name: "PROD_ITEM_PROCESS_MAST", desc: "Item Process", cols: 25 },
-        { id: "PROD_ITEM_GROUP_MAST", name: "PROD_ITEM_GROUP_MAST", desc: "Item Group", cols: 18 },
-        { id: "PRODTRAN_PROCESS", name: "PRODTRAN_PROCESS", desc: "Legacy Prod", cols: 58 },
-      ]
-    },
-    logistics: {
-      label: "🚚 Logistics",
-      color: "#f97316",
-      tables: [
-        { id: "FREIGHT_ORDER_HEAD", name: "FREIGHT_ORDER_HEAD", desc: "Freight Order", cols: 45 },
-      ]
-    },
-    mobile: {
-      label: "📱 Mobile",
-      color: "#ec4899",
-      tables: [
-        { id: "LHSSYS_USER_APP_KEY_VALIDATION", name: "LHSSYS_USER_APP_KEY_VALIDATION", desc: "Mobile App Keys", cols: 28 },
-      ]
-    }
-  };
+      // All tables
+      const tableGroups = {
+        core: {
+          label: "🏢 Core",
+          color: "#3b82f6",
+          tables: [
+            { id: "ENTITY_MAST", name: "ENTITY_MAST", desc: "Company Master", cols: 58 },
+            { id: "USER_MAST", name: "USER_MAST", desc: "User Accounts", cols: 47 },
+            { id: "DIV_MAST", name: "DIV_MAST", desc: "Branch/Division", cols: 52 },
+            { id: "ACC_YEAR_MAST", name: "ACC_YEAR_MAST", desc: "Fiscal Year", cols: 15 },
+          ]
+        },
+        accounts: {
+          label: "💰 Accounts",
+          color: "#10b981",
+          tables: [
+            { id: "ACC_MAST", name: "ACC_MAST", desc: "Ledger Accounts", cols: 47 },
+            { id: "ADDRESS_MAST", name: "ADDRESS_MAST", desc: "Addresses", cols: 56 },
+            { id: "CONFIG_MAST", name: "CONFIG_MAST", desc: "Voucher Config", cols: 57 },
+            { id: "ACC_TRAN", name: "ACC_TRAN", desc: "Accounting Entries", cols: 95 },
+          ]
+        },
+        purchase: {
+          label: "🛒 Purchase",
+          color: "#f59e0b",
+          tables: [
+            { id: "INDENT_HEAD", name: "INDENT_HEAD", desc: "Indent Header", cols: 25 },
+            { id: "INDENT_BODY", name: "INDENT_BODY", desc: "Indent Items", cols: 56 },
+            { id: "ENQUIRY_HEAD", name: "ENQUIRY_HEAD", desc: "Enquiry Header", cols: 28 },
+            { id: "ENQUIRY_BODY", name: "ENQUIRY_BODY", desc: "Enquiry Items", cols: 42 },
+            { id: "ORDER_HEAD", name: "ORDER_HEAD", desc: "Order Header", cols: 82 },
+            { id: "ORDER_BODY", name: "ORDER_BODY", desc: "Order Items", cols: 95 },
+            { id: "ORDER_AFIELD", name: "ORDER_AFIELD", desc: "Additional Fields", cols: 17 },
+          ]
+        },
+        inventory: {
+          label: "📦 Inventory",
+          color: "#ef4444",
+          tables: [
+            { id: "ITEMTRAN_HEAD", name: "ITEMTRAN_HEAD", desc: "Stock Movement H", cols: 82 },
+            { id: "ITEMTRAN_BODY", name: "ITEMTRAN_BODY", desc: "Stock Movement B", cols: 118 },
+            { id: "GATETRAN_HEAD", name: "GATETRAN_HEAD", desc: "Gate Entry H", cols: 62 },
+            { id: "GATETRAN_BODY", name: "GATETRAN_BODY", desc: "Gate Entry B", cols: 52 },
+            { id: "WB_HEAD", name: "WB_HEAD", desc: "Weighbridge", cols: 52 },
+            { id: "QCTRAN_HEAD", name: "QCTRAN_HEAD", desc: "Quality Control H", cols: 52 },
+            { id: "QCTRAN_BODY", name: "QCTRAN_BODY", desc: "QC Test Results", cols: 28 },
+          ]
+        },
+        production: {
+          label: "🏭 Production",
+          color: "#8b5cf6",
+          tables: [
+            { id: "PROD_ORDER_HEAD", name: "PROD_ORDER_HEAD", desc: "Prod Order H", cols: 35 },
+            { id: "PROD_ORDER_BODY", name: "PROD_ORDER_BODY", desc: "Prod Order B", cols: 52 },
+            { id: "PROD_ORDER_ROUTING", name: "PROD_ORDER_ROUTING", desc: "Routing", cols: 30 },
+            { id: "PROD_ORDER_PLAN", name: "PROD_ORDER_PLAN", desc: "Planning", cols: 32 },
+            { id: "PROD_ORDER_ALLOC", name: "PROD_ORDER_ALLOC", desc: "Allocation", cols: 42 },
+            { id: "PROD_TRAN", name: "PROD_TRAN", desc: "Production Tran", cols: 95 },
+            { id: "PROD_SETUP_HEAD", name: "PROD_SETUP_HEAD", desc: "Setup H", cols: 28 },
+            { id: "PROD_SETUP_BODY", name: "PROD_SETUP_BODY", desc: "Setup B", cols: 32 },
+            { id: "PROD_SETUP_EQPT", name: "PROD_SETUP_EQPT", desc: "Equipment", cols: 38 },
+            { id: "PROD_SETUP_ITEM", name: "PROD_SETUP_ITEM", desc: "Setup Items", cols: 35 },
+            { id: "PROD_SETUP_PLAN", name: "PROD_SETUP_PLAN", desc: "Setup Plan", cols: 22 },
+            { id: "PROD_SETUP_CYCLETIME", name: "PROD_SETUP_CYCLETIME", desc: "Cycle Time", cols: 25 },
+            { id: "PROD_SETUP_CALENDER", name: "PROD_SETUP_CALENDER", desc: "Calendar", cols: 22 },
+            { id: "PROD_ROUTING_MAST", name: "PROD_ROUTING_MAST", desc: "Route Master", cols: 20 },
+            { id: "PROD_ROUTING_ALLOC_MAST", name: "PROD_ROUTING_ALLOC_MAST", desc: "Route Alloc", cols: 28 },
+            { id: "PROD_PLANT_PLAN", name: "PROD_PLANT_PLAN", desc: "Plant Plan", cols: 20 },
+            { id: "PROD_ITEM_PROCESS_MAST", name: "PROD_ITEM_PROCESS_MAST", desc: "Item Process", cols: 25 },
+            { id: "PROD_ITEM_GROUP_MAST", name: "PROD_ITEM_GROUP_MAST", desc: "Item Group", cols: 18 },
+            { id: "PRODTRAN_PROCESS", name: "PRODTRAN_PROCESS", desc: "Legacy Prod", cols: 58 },
+          ]
+        },
+        logistics: {
+          label: "🚚 Logistics",
+          color: "#f97316",
+          tables: [
+            { id: "FREIGHT_ORDER_HEAD", name: "FREIGHT_ORDER_HEAD", desc: "Freight Order", cols: 45 },
+          ]
+        },
+        mobile: {
+          label: "📱 Mobile",
+          color: "#ec4899",
+          tables: [
+            { id: "LHSSYS_USER_APP_KEY_VALIDATION", name: "LHSSYS_USER_APP_KEY_VALIDATION", desc: "Mobile App Keys", cols: 28 },
+          ]
+        }
+      };
 
-  const allTables = Object.entries(tableGroups).flatMap(([groupKey, group]) =>
-    group.tables.map(t => ({ ...t, group: groupKey, groupColor: group.color }))
-  );
+      const allTables = Object.entries(tableGroups).flatMap(([groupKey, group]) =>
+        group.tables.map(t => ({ ...t, group: groupKey, groupColor: group.color }))
+      );
 
-  const visibleTables = selectedGroup === "all" 
-    ? allTables 
-    : allTables.filter(t => t.group === selectedGroup);
+      const visibleTables = selectedGroup === "all"
+        ? allTables
+        : allTables.filter(t => t.group === selectedGroup);
 
-  const visibleIds = new Set(visibleTables.map(t => t.id));
+      const visibleIds = new Set(visibleTables.map(t => t.id));
 
-  const allRelations = [
-    { from: "ENTITY_MAST", to: "DIV_MAST", label: "1:N" },
-    { from: "ENTITY_MAST", to: "ACC_YEAR_MAST", label: "1:N" },
-    { from: "ENTITY_MAST", to: "CONFIG_MAST", label: "1:N" },
-    { from: "USER_MAST", to: "ADDRESS_MAST", label: "creates" },
-    { from: "USER_MAST", to: "LHSSYS_USER_APP_KEY_VALIDATION", label: "1:N" },
-    { from: "ACC_MAST", to: "ADDRESS_MAST", label: "1:N" },
-    { from: "ACC_MAST", to: "ORDER_HEAD", label: "places" },
-    { from: "ACC_MAST", to: "ACC_TRAN", label: "posts" },
-    { from: "CONFIG_MAST", to: "ORDER_HEAD", label: "configures" },
-    { from: "INDENT_HEAD", to: "INDENT_BODY", label: "1:N" },
-    { from: "INDENT_BODY", to: "ENQUIRY_BODY", label: "converts" },
-    { from: "ENQUIRY_HEAD", to: "ENQUIRY_BODY", label: "1:N" },
-    { from: "ENQUIRY_BODY", to: "ORDER_BODY", label: "→order" },
-    { from: "ORDER_HEAD", to: "ORDER_BODY", label: "1:N" },
-    { from: "ORDER_HEAD", to: "ORDER_AFIELD", label: "1:N" },
-    { from: "ORDER_HEAD", to: "ITEMTRAN_HEAD", label: "executes" },
-    { from: "ITEMTRAN_HEAD", to: "ITEMTRAN_BODY", label: "1:N" },
-    { from: "ITEMTRAN_BODY", to: "GATETRAN_BODY", label: "gate" },
-    { from: "GATETRAN_HEAD", to: "GATETRAN_BODY", label: "1:N" },
-    { from: "GATETRAN_HEAD", to: "WB_HEAD", label: "weighs" },
-    { from: "GATETRAN_HEAD", to: "QCTRAN_HEAD", label: "qc" },
-    { from: "QCTRAN_HEAD", to: "QCTRAN_BODY", label: "1:N" },
-    { from: "FREIGHT_ORDER_HEAD", to: "GATETRAN_HEAD", label: "1:N" },
-    { from: "ORDER_BODY", to: "PROD_ORDER_HEAD", label: "makes" },
-    { from: "PROD_ORDER_HEAD", to: "PROD_ORDER_BODY", label: "1:N" },
-    { from: "PROD_ORDER_HEAD", to: "PROD_ORDER_ROUTING", label: "1:N" },
-    { from: "PROD_ORDER_HEAD", to: "PROD_ORDER_PLAN", label: "1:N" },
-    { from: "PROD_ORDER_BODY", to: "PROD_TRAN", label: "produces" },
-    { from: "PROD_SETUP_HEAD", to: "PROD_SETUP_BODY", label: "1:N" },
-    { from: "PROD_SETUP_HEAD", to: "PROD_SETUP_EQPT", label: "1:N" },
-    { from: "PROD_SETUP_EQPT", to: "PROD_SETUP_ITEM", label: "1:N" },
-    { from: "PROD_SETUP_HEAD", to: "PROD_SETUP_PLAN", label: "1:N" },
-    { from: "PROD_ROUTING_MAST", to: "PROD_ROUTING_ALLOC_MAST", label: "1:N" },
-    { from: "PROD_ITEM_GROUP_MAST", to: "PROD_ROUTING_MAST", label: "1:N" },
-    { from: "PROD_ITEM_GROUP_MAST", to: "PROD_ITEM_PROCESS_MAST", label: "1:N" },
-  ];
+      const allRelations = [
+        { from: "ENTITY_MAST", to: "DIV_MAST", label: "1:N" },
+        { from: "ENTITY_MAST", to: "ACC_YEAR_MAST", label: "1:N" },
+        { from: "ENTITY_MAST", to: "CONFIG_MAST", label: "1:N" },
+        { from: "USER_MAST", to: "ADDRESS_MAST", label: "creates" },
+        { from: "USER_MAST", to: "LHSSYS_USER_APP_KEY_VALIDATION", label: "1:N" },
+        { from: "ACC_MAST", to: "ADDRESS_MAST", label: "1:N" },
+        { from: "ACC_MAST", to: "ORDER_HEAD", label: "places" },
+        { from: "ACC_MAST", to: "ACC_TRAN", label: "posts" },
+        { from: "CONFIG_MAST", to: "ORDER_HEAD", label: "configures" },
+        { from: "INDENT_HEAD", to: "INDENT_BODY", label: "1:N" },
+        { from: "INDENT_BODY", to: "ENQUIRY_BODY", label: "converts" },
+        { from: "ENQUIRY_HEAD", to: "ENQUIRY_BODY", label: "1:N" },
+        { from: "ENQUIRY_BODY", to: "ORDER_BODY", label: "→order" },
+        { from: "ORDER_HEAD", to: "ORDER_BODY", label: "1:N" },
+        { from: "ORDER_HEAD", to: "ORDER_AFIELD", label: "1:N" },
+        { from: "ORDER_HEAD", to: "ITEMTRAN_HEAD", label: "executes" },
+        { from: "ITEMTRAN_HEAD", to: "ITEMTRAN_BODY", label: "1:N" },
+        { from: "ITEMTRAN_BODY", to: "GATETRAN_BODY", label: "gate" },
+        { from: "GATETRAN_HEAD", to: "GATETRAN_BODY", label: "1:N" },
+        { from: "GATETRAN_HEAD", to: "WB_HEAD", label: "weighs" },
+        { from: "GATETRAN_HEAD", to: "QCTRAN_HEAD", label: "qc" },
+        { from: "QCTRAN_HEAD", to: "QCTRAN_BODY", label: "1:N" },
+        { from: "FREIGHT_ORDER_HEAD", to: "GATETRAN_HEAD", label: "1:N" },
+        { from: "ORDER_BODY", to: "PROD_ORDER_HEAD", label: "makes" },
+        { from: "PROD_ORDER_HEAD", to: "PROD_ORDER_BODY", label: "1:N" },
+        { from: "PROD_ORDER_HEAD", to: "PROD_ORDER_ROUTING", label: "1:N" },
+        { from: "PROD_ORDER_HEAD", to: "PROD_ORDER_PLAN", label: "1:N" },
+        { from: "PROD_ORDER_BODY", to: "PROD_TRAN", label: "produces" },
+        { from: "PROD_SETUP_HEAD", to: "PROD_SETUP_BODY", label: "1:N" },
+        { from: "PROD_SETUP_HEAD", to: "PROD_SETUP_EQPT", label: "1:N" },
+        { from: "PROD_SETUP_EQPT", to: "PROD_SETUP_ITEM", label: "1:N" },
+        { from: "PROD_SETUP_HEAD", to: "PROD_SETUP_PLAN", label: "1:N" },
+        { from: "PROD_ROUTING_MAST", to: "PROD_ROUTING_ALLOC_MAST", label: "1:N" },
+        { from: "PROD_ITEM_GROUP_MAST", to: "PROD_ROUTING_MAST", label: "1:N" },
+        { from: "PROD_ITEM_GROUP_MAST", to: "PROD_ITEM_PROCESS_MAST", label: "1:N" },
+      ];
 
-  const visibleRelations = allRelations.filter(r => 
-    visibleIds.has(r.from) && visibleIds.has(r.to)
-  );
+      const visibleRelations = allRelations.filter(r =>
+        visibleIds.has(r.from) && visibleIds.has(r.to)
+      );
 
-  // Auto-fit layout calculation
-  const getOptimalLayout = () => {
-    const count = visibleTables.length;
-    const containerWidth = window.innerWidth - 80;
-    const containerHeight = window.innerHeight - 200;
-    
-    // Calculate optimal columns based on screen size and table count
-    let cols;
-    if (selectedGroup !== "all") {
-      cols = Math.min(count, 4); // Max 4 per row for single group
-    } else {
-      cols = Math.ceil(Math.sqrt(count * 1.5)); // Golden ratio for all tables
-    }
-    
-    const rows = Math.ceil(count / cols);
-    
-    // Calculate card size to fit screen
-    const cardWidth = Math.min(180, Math.floor((containerWidth - (cols - 1) * 15) / cols));
-    const cardHeight = Math.min(90, Math.floor((containerHeight - (rows - 1) * 20) / rows));
-    
-    return { cols, cardWidth, cardHeight, gapX: 15, gapY: 20 };
-  };
+      // Auto-fit layout calculation
+      const getOptimalLayout = () => {
+        const count = visibleTables.length;
+        const containerWidth = window.innerWidth - 80;
+        const containerHeight = window.innerHeight - 200;
 
-  const layout = getOptimalLayout();
+        // Calculate optimal columns based on screen size and table count
+        let cols;
+        if (selectedGroup !== "all") {
+          cols = Math.min(count, 4); // Max 4 per row for single group
+        } else {
+          cols = Math.ceil(Math.sqrt(count * 1.5)); // Golden ratio for all tables
+        }
 
-  const getTablePosition = (index) => ({
-    x: 20 + (index % layout.cols) * (layout.cardWidth + layout.gapX),
-    y: 20 + Math.floor(index / layout.cols) * (layout.cardHeight + layout.gapY)
-  });
+        const rows = Math.ceil(count / cols);
 
-  const positions = {};
-  visibleTables.forEach((t, i) => {
-    positions[t.id] = { ...getTablePosition(i), ...t, ...layout };
-  });
+        // Calculate card size to fit screen
+        const cardWidth = Math.min(180, Math.floor((containerWidth - (cols - 1) * 15) / cols));
+        const cardHeight = Math.min(90, Math.floor((containerHeight - (rows - 1) * 20) / rows));
 
-  const getConnectionPoint = (from, to) => {
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const angle = Math.atan2(dy, dx);
-    const w = layout.cardWidth, h = layout.cardHeight;
-    return {
-      x1: from.x + w/2 + (w/2 - 3) * Math.cos(angle),
-      y1: from.y + h/2 + (h/2 - 3) * Math.sin(angle),
-      x2: to.x + w/2 - (w/2 - 3) * Math.cos(angle),
-      y2: to.y + h/2 - (h/2 - 3) * Math.sin(angle)
-    };
-  };
+        return { cols, cardWidth, cardHeight, gapX: 15, gapY: 20 };
+      };
 
-  const isHighlighted = (tableId) => {
-    if (!hoveredTable) return false;
-    if (hoveredTable === tableId) return true;
-    return visibleRelations.some(r => 
-      (r.from === hoveredTable && r.to === tableId) ||
-      (r.to === hoveredTable && r.from === tableId)
-    );
-  };
+      const layout = getOptimalLayout();
 
-  const svgWidth = Math.max(...Object.values(positions).map(p => p.x)) + layout.cardWidth + 40;
-  const svgHeight = Math.max(...Object.values(positions).map(p => p.y)) + layout.cardHeight + 40;
+      const getTablePosition = (index) => ({
+        x: 20 + (index % layout.cols) * (layout.cardWidth + layout.gapX),
+        y: 20 + Math.floor(index / layout.cols) * (layout.cardHeight + layout.gapY)
+      });
 
-  return (
-    <div style={{ 
-      background: "#020617", 
-      height: "100vh",
-      display: "flex",
-      flexDirection: "column",
-      overflow: "hidden",
-      fontFamily: "Inter, system-ui, sans-serif"
-    }}>
-      
-      {/* Compact Header */}
-      <div style={{ 
-        display: "flex", 
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "12px 20px",
-        borderBottom: "1px solid #1e293b",
-        background: "#0f172a",
-        flexShrink: 0
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <h1 style={{ 
-            margin: 0, 
-            color: "#f8fafc", 
-            fontSize: "18px",
-            fontWeight: "800"
-          }}>
-            🗄️ V7C ERP
-          </h1>
-          <span style={{ color: "#64748b", fontSize: "12px" }}>
-            {visibleTables.length} tables
-          </span>
-        </div>
+      const positions = {};
+      visibleTables.forEach((t, i) => {
+        positions[t.id] = { ...getTablePosition(i), ...t, ...layout };
+      });
 
-        {/* Filter Buttons - Compact */}
-        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-          <button
-            onClick={() => setSelectedGroup("all")}
-            style={{
-              padding: "6px 12px",
-              borderRadius: "6px",
-              border: "1px solid " + (selectedGroup === "all" ? "#6366f1" : "#334155"),
-              background: selectedGroup === "all" ? "#6366f1" : "transparent",
-              color: "#fff",
-              fontSize: "11px",
-              fontWeight: "600",
-              cursor: "pointer"
-            }}
-          >
-            ALL
-          </button>
-          {Object.entries(tableGroups).map(([key, group]) => (
-            <button
-              key={key}
-              onClick={() => setSelectedGroup(key)}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                border: "1px solid " + (selectedGroup === key ? group.color : "#334155"),
-                background: selectedGroup === key ? group.color + "22" : "transparent",
-                color: selectedGroup === key ? group.color : "#94a3b8",
-                fontSize: "11px",
-                fontWeight: "600",
-                cursor: "pointer"
-              }}
-            >
-              {group.label.split(" ")[0]}
-            </button>
-          ))}
-        </div>
-      </div>
+      const getConnectionPoint = (from, to) => {
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const angle = Math.atan2(dy, dx);
+        const w = layout.cardWidth, h = layout.cardHeight;
+        return {
+          x1: from.x + w / 2 + (w / 2 - 3) * Math.cos(angle),
+          y1: from.y + h / 2 + (h / 2 - 3) * Math.sin(angle),
+          x2: to.x + w / 2 - (w / 2 - 3) * Math.cos(angle),
+          y2: to.y + h / 2 - (h / 2 - 3) * Math.sin(angle)
+        };
+      };
 
-      {/* Diagram - Fits Screen */}
-      <div style={{ 
-        flex: 1,
-        background: "#0f172a",
-        overflow: "hidden",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      }}>
-        <svg 
-          width="100%" 
-          height="100%" 
-          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <defs>
-            <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L8,3 z" fill="#64748b" />
-            </marker>
-          </defs>
+      const isHighlighted = (tableId) => {
+        if (!hoveredTable) return false;
+        if (hoveredTable === tableId) return true;
+        return visibleRelations.some(r =>
+          (r.from === hoveredTable && r.to === tableId) ||
+          (r.to === hoveredTable && r.from === tableId)
+        );
+      };
 
-          {/* Relations */}
-          {visibleRelations.map((rel, i) => {
-            const from = positions[rel.from];
-            const to = positions[rel.to];
-            if (!from || !to) return null;
+      const svgWidth = Math.max(...Object.values(positions).map(p => p.x)) + layout.cardWidth + 40;
+      const svgHeight = Math.max(...Object.values(positions).map(p => p.y)) + layout.cardHeight + 40;
 
-            const { x1, y1, x2, y2 } = getConnectionPoint(from, to);
-            const isActive = hoveredTable === rel.from || hoveredTable === rel.to;
-            const isDimmed = hoveredTable && !isActive;
-
-            return (
-              <g key={i} opacity={isDimmed ? 0.05 : isActive ? 1 : 0.2}>
-                <line
-                  x1={x1} y1={y1}
-                  x2={x2} y2={y2}
-                  stroke={isActive ? from.groupColor : "#64748b"}
-                  strokeWidth={isActive ? 2.5 : 1}
-                  markerEnd="url(#arrow)"
-                />
-              </g>
-            );
-          })}
-
-          {/* Tables */}
-          {Object.entries(positions).map(([id, pos]) => {
-            const highlighted = isHighlighted(id);
-            const isSelected = selectedTable === id;
-            const dimmed = hoveredTable && !highlighted;
-            const w = pos.cardWidth;
-            const h = pos.cardHeight;
-
-            return (
-              <g
-                key={id}
-                onMouseEnter={() => setHoveredTable(id)}
-                onMouseLeave={() => setHoveredTable(null)}
-                onClick={() => setSelectedTable(isSelected ? null : id)}
-                style={{ cursor: "pointer" }}
-                opacity={dimmed ? 0.3 : 1}
-              >
-                {/* Card */}
-                <rect
-                  x={pos.x} y={pos.y}
-                  width={w} height={h}
-                  rx={8}
-                  fill={isSelected ? "#1e293b" : highlighted ? "#0f172a" : "#020617"}
-                  stroke={isSelected ? pos.groupColor : highlighted ? pos.groupColor : "#334155"}
-                  strokeWidth={isSelected ? 3 : highlighted ? 2 : 1}
-                />
-                
-                {/* Color strip */}
-                <rect
-                  x={pos.x} y={pos.y}
-                  width={4} height={h}
-                  rx={2}
-                  fill={pos.groupColor}
-                />
-                
-                {/* Table name - scaled */}
-                <text
-                  x={pos.x + 10} y={pos.y + h * 0.35}
-                  fill="#f8fafc"
-                  fontSize={Math.max(9, h * 0.16)}
-                  fontWeight="700"
-                  fontFamily="monospace"
-                >
-                  {pos.name.length > 20 ? pos.name.slice(0, 18) + ".." : pos.name}
-                </text>
-                
-                {/* Description */}
-                <text
-                  x={pos.x + 10} y={pos.y + h * 0.58}
-                  fill="#94a3b8"
-                  fontSize={Math.max(8, h * 0.13)}
-                  fontFamily="sans-serif"
-                >
-                  {pos.desc.length > 25 ? pos.desc.slice(0, 23) + ".." : pos.desc}
-                </text>
-
-                {/* Stats */}
-                <text
-                  x={pos.x + 10} y={pos.y + h * 0.82}
-                  fill={pos.groupColor}
-                  fontSize={Math.max(7, h * 0.12)}
-                  fontWeight="bold"
-                  fontFamily="monospace"
-                >
-                  {pos.cols} cols • {visibleRelations.filter(r => r.from === id || r.to === id).length} links
-                </text>
-
-                {/* Selection dot */}
-                {isSelected && (
-                  <circle
-                    cx={pos.x + w - 8} 
-                    cy={pos.y + 8}
-                    r={4}
-                    fill={pos.groupColor}
-                  />
-                )}
-              </g>
-            );
-          })}
-        </svg>
-      </div>
-
-      {/* Selected Table Panel - Slide from bottom */}
-      {selectedTable && positions[selectedTable] && (
+      return (
         <div style={{
-          position: "fixed",
-          bottom: "0",
-          left: "0",
-          right: "0",
-          background: "#0f172a",
-          borderTop: `3px solid ${positions[selectedTable].groupColor}`,
-          padding: "16px 20px",
-          boxShadow: "0 -10px 40px rgba(0,0,0,0.5)",
-          zIndex: 100,
-          maxHeight: "40vh",
-          overflow: "auto"
+          background: "#020617",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          fontFamily: "Inter, system-ui, sans-serif"
         }}>
-          <div style={{ 
-            display: "flex", 
-            alignItems: "flex-start", 
-            gap: "16px",
-            maxWidth: "1200px",
-            margin: "0 auto"
+
+          {/* Compact Header */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "12px 20px",
+            borderBottom: "1px solid #1e293b",
+            background: "#0f172a",
+            flexShrink: 0
           }}>
-            <div style={{
-              width: 12,
-              height: 50,
-              borderRadius: 6,
-              background: positions[selectedTable].groupColor,
-              flexShrink: 0
-            }}></div>
-            
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-                <h3 style={{ 
-                  margin: 0, 
-                  color: "#f8fafc", 
-                  fontSize: "18px",
-                  fontFamily: "monospace",
-                  fontWeight: "800"
-                }}>
-                  {positions[selectedTable].name}
-                </h3>
-                <span style={{ 
-                  color: positions[selectedTable].groupColor, 
-                  fontSize: "12px",
-                  background: positions[selectedTable].groupColor + "22",
-                  padding: "2px 8px",
-                  borderRadius: "4px"
-                }}>
-                  {tableGroups[positions[selectedTable].group].label}
-                </span>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <h1 style={{
+                margin: 0,
+                color: "#f8fafc",
+                fontSize: "18px",
+                fontWeight: "800"
+              }}>
+                🗄️ V7C ERP
+              </h1>
+              <span style={{ color: "#64748b", fontSize: "12px" }}>
+                {visibleTables.length} tables
+              </span>
+            </div>
+
+            {/* Filter Buttons - Compact */}
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              <button
+                onClick={() => setSelectedGroup("all")}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid " + (selectedGroup === "all" ? "#6366f1" : "#334155"),
+                  background: selectedGroup === "all" ? "#6366f1" : "transparent",
+                  color: "#fff",
+                  fontSize: "11px",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+              >
+                ALL
+              </button>
+              {Object.entries(tableGroups).map(([key, group]) => (
                 <button
-                  onClick={() => setSelectedTable(null)}
+                  key={key}
+                  onClick={() => setSelectedGroup(key)}
                   style={{
-                    marginLeft: "auto",
-                    background: "#1e293b",
-                    border: "none",
-                    color: "#94a3b8",
-                    width: 28,
-                    height: 28,
-                    borderRadius: 6,
-                    fontSize: "16px",
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    border: "1px solid " + (selectedGroup === key ? group.color : "#334155"),
+                    background: selectedGroup === key ? group.color + "22" : "transparent",
+                    color: selectedGroup === key ? group.color : "#94a3b8",
+                    fontSize: "11px",
+                    fontWeight: "600",
                     cursor: "pointer"
                   }}
                 >
-                  ×
+                  {group.label.split(" ")[0]}
                 </button>
-              </div>
-              
-              <p style={{ margin: "0 0 12px 0", color: "#94a3b8", fontSize: "13px" }}>
-                {positions[selectedTable].desc}
-              </p>
-
-              {/* Connected tables horizontal list */}
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
-                <span style={{ color: "#64748b", fontSize: "11px", fontWeight: "bold" }}>LINKED TO:</span>
-                {visibleRelations
-                  .filter(r => r.from === selectedTable || r.to === selectedTable)
-                  .slice(0, 6)
-                  .map((r, i) => {
-                    const otherId = r.from === selectedTable ? r.to : r.from;
-                    const other = positions[otherId];
-                    return other ? (
-                      <span key={i} style={{
-                        background: "#1e293b",
-                        color: "#e2e8f0",
-                        padding: "4px 10px",
-                        borderRadius: "6px",
-                        fontSize: "11px",
-                        fontFamily: "monospace",
-                        border: `1px solid ${other.groupColor}44`
-                      }}>
-                        {other.name}
-                      </span>
-                    ) : null;
-                  })}
-              </div>
+              ))}
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Hint */}
-      {!selectedTable && (
-        <div style={{ 
-          position: "fixed",
-          bottom: "12px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          background: "#1e293b",
-          padding: "8px 16px",
-          borderRadius: "20px",
-          color: "#64748b",
-          fontSize: "12px",
-          pointerEvents: "none"
-        }}>
-          🖱️ Click table for details • 👆 Hover to highlight
+          {/* Diagram - Fits Screen */}
+          <div style={{
+            flex: 1,
+            background: "#0f172a",
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}>
+            <svg
+              width="100%"
+              height="100%"
+              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <defs>
+                <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L8,3 z" fill="#64748b" />
+                </marker>
+              </defs>
+
+              {/* Relations */}
+              {visibleRelations.map((rel, i) => {
+                const from = positions[rel.from];
+                const to = positions[rel.to];
+                if (!from || !to) return null;
+
+                const { x1, y1, x2, y2 } = getConnectionPoint(from, to);
+                const isActive = hoveredTable === rel.from || hoveredTable === rel.to;
+                const isDimmed = hoveredTable && !isActive;
+
+                return (
+                  <g key={i} opacity={isDimmed ? 0.05 : isActive ? 1 : 0.2}>
+                    <line
+                      x1={x1} y1={y1}
+                      x2={x2} y2={y2}
+                      stroke={isActive ? from.groupColor : "#64748b"}
+                      strokeWidth={isActive ? 2.5 : 1}
+                      markerEnd="url(#arrow)"
+                    />
+                  </g>
+                );
+              })}
+
+              {/* Tables */}
+              {Object.entries(positions).map(([id, pos]) => {
+                const highlighted = isHighlighted(id);
+                const isSelected = selectedTable === id;
+                const dimmed = hoveredTable && !highlighted;
+                const w = pos.cardWidth;
+                const h = pos.cardHeight;
+
+                return (
+                  <g
+                    key={id}
+                    onMouseEnter={() => setHoveredTable(id)}
+                    onMouseLeave={() => setHoveredTable(null)}
+                    onClick={() => setSelectedTable(isSelected ? null : id)}
+                    style={{ cursor: "pointer" }}
+                    opacity={dimmed ? 0.3 : 1}
+                  >
+                    {/* Card */}
+                    <rect
+                      x={pos.x} y={pos.y}
+                      width={w} height={h}
+                      rx={8}
+                      fill={isSelected ? "#1e293b" : highlighted ? "#0f172a" : "#020617"}
+                      stroke={isSelected ? pos.groupColor : highlighted ? pos.groupColor : "#334155"}
+                      strokeWidth={isSelected ? 3 : highlighted ? 2 : 1}
+                    />
+
+                    {/* Color strip */}
+                    <rect
+                      x={pos.x} y={pos.y}
+                      width={4} height={h}
+                      rx={2}
+                      fill={pos.groupColor}
+                    />
+
+                    {/* Table name - scaled */}
+                    <text
+                      x={pos.x + 10} y={pos.y + h * 0.35}
+                      fill="#f8fafc"
+                      fontSize={Math.max(9, h * 0.16)}
+                      fontWeight="700"
+                      fontFamily="monospace"
+                    >
+                      {pos.name.length > 20 ? pos.name.slice(0, 18) + ".." : pos.name}
+                    </text>
+
+                    {/* Description */}
+                    <text
+                      x={pos.x + 10} y={pos.y + h * 0.58}
+                      fill="#94a3b8"
+                      fontSize={Math.max(8, h * 0.13)}
+                      fontFamily="sans-serif"
+                    >
+                      {pos.desc.length > 25 ? pos.desc.slice(0, 23) + ".." : pos.desc}
+                    </text>
+
+                    {/* Stats */}
+                    <text
+                      x={pos.x + 10} y={pos.y + h * 0.82}
+                      fill={pos.groupColor}
+                      fontSize={Math.max(7, h * 0.12)}
+                      fontWeight="bold"
+                      fontFamily="monospace"
+                    >
+                      {pos.cols} cols • {visibleRelations.filter(r => r.from === id || r.to === id).length} links
+                    </text>
+
+                    {/* Selection dot */}
+                    {isSelected && (
+                      <circle
+                        cx={pos.x + w - 8}
+                        cy={pos.y + 8}
+                        r={4}
+                        fill={pos.groupColor}
+                      />
+                    )}
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+
+          {/* Selected Table Panel - Slide from bottom */}
+          {selectedTable && positions[selectedTable] && (
+            <div style={{
+              position: "fixed",
+              bottom: "0",
+              left: "0",
+              right: "0",
+              background: "#0f172a",
+              borderTop: `3px solid ${positions[selectedTable].groupColor}`,
+              padding: "16px 20px",
+              boxShadow: "0 -10px 40px rgba(0,0,0,0.5)",
+              zIndex: 100,
+              maxHeight: "40vh",
+              overflow: "auto"
+            }}>
+              <div style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "16px",
+                maxWidth: "1200px",
+                margin: "0 auto"
+              }}>
+                <div style={{
+                  width: 12,
+                  height: 50,
+                  borderRadius: 6,
+                  background: positions[selectedTable].groupColor,
+                  flexShrink: 0
+                }}></div>
+
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+                    <h3 style={{
+                      margin: 0,
+                      color: "#f8fafc",
+                      fontSize: "18px",
+                      fontFamily: "monospace",
+                      fontWeight: "800"
+                    }}>
+                      {positions[selectedTable].name}
+                    </h3>
+                    <span style={{
+                      color: positions[selectedTable].groupColor,
+                      fontSize: "12px",
+                      background: positions[selectedTable].groupColor + "22",
+                      padding: "2px 8px",
+                      borderRadius: "4px"
+                    }}>
+                      {tableGroups[positions[selectedTable].group].label}
+                    </span>
+                    <button
+                      onClick={() => setSelectedTable(null)}
+                      style={{
+                        marginLeft: "auto",
+                        background: "#1e293b",
+                        border: "none",
+                        color: "#94a3b8",
+                        width: 28,
+                        height: 28,
+                        borderRadius: 6,
+                        fontSize: "16px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <p style={{ margin: "0 0 12px 0", color: "#94a3b8", fontSize: "13px" }}>
+                    {positions[selectedTable].desc}
+                  </p>
+
+                  {/* Connected tables horizontal list */}
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                    <span style={{ color: "#64748b", fontSize: "11px", fontWeight: "bold" }}>LINKED TO:</span>
+                    {visibleRelations
+                      .filter(r => r.from === selectedTable || r.to === selectedTable)
+                      .slice(0, 6)
+                      .map((r, i) => {
+                        const otherId = r.from === selectedTable ? r.to : r.from;
+                        const other = positions[otherId];
+                        return other ? (
+                          <span key={i} style={{
+                            background: "#1e293b",
+                            color: "#e2e8f0",
+                            padding: "4px 10px",
+                            borderRadius: "6px",
+                            fontSize: "11px",
+                            fontFamily: "monospace",
+                            border: `1px solid ${other.groupColor}44`
+                          }}>
+                            {other.name}
+                          </span>
+                        ) : null;
+                      })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Hint */}
+          {!selectedTable && (
+            <div style={{
+              position: "fixed",
+              bottom: "12px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "#1e293b",
+              padding: "8px 16px",
+              borderRadius: "20px",
+              color: "#64748b",
+              fontSize: "12px",
+              pointerEvents: "none"
+            }}>
+              🖱️ Click table for details • 👆 Hover to highlight
+            </div>
+          )}
         </div>
-      )}
-    </div>
-  );
-};
+      );
+    };
+
     // ─── BUILTINS TABLE ──────────────────────────────────────────────────────────
 
     const BuiltinsView = () => {
@@ -4102,6 +4103,8 @@ const ERDiagram = () => {
     const App = () => {
       const [activeTab, setActiveTab] = useState("overview");
       const [selectedTable, setSelectedTable] = useState(DB_TABLES[0]);
+      const [selectedTcode, setSelectedTcode] = useState(null); // For modal/detail view
+      const [showTcodeModal, setShowTcodeModal] = useState(false);
 
       const tabs = [
         { id: "overview", label: "Overview", icon: "🏠" },
@@ -4114,10 +4117,311 @@ const ERDiagram = () => {
         { id: "filters", label: "Filter Flags", icon: "🔍" },
         { id: "patterns", label: "Input Patterns", icon: "📝" },
         { id: "library", label: "Library", icon: "📚" },
+        { id: "tcode", label: "Tcode/Tnature", icon: "📋" },
       ];
+
+      // Complete Tcode/Tnature data from your provided table
+      const tcodeData = [
+        { tcode: "BB", tnature: "BANKP", tnatureName: "Bank Entry Payment", tname: "BANK", series: "WK", seriesName: "KOTAK BANK PAYMENT", seriesType: "Daily", freezedate: "01-Apr-2025", status: "Active", description: "Bank payment voucher entry for KOTAK bank transactions" },
+        { tcode: "BB", tnature: "BANKR", tnatureName: "Bank Entry Receipts", tname: "BANK", series: "RK", seriesName: "KOTAK BANK PAYMENT", seriesType: "Daily", freezedate: "01-Apr-2025", status: "Active", description: "Bank receipt voucher entry for KOTAK bank transactions" },
+        { tcode: "BC", tnature: "CASHP", tnatureName: "Cash Entry Payment", tname: "CASH", series: "PIO", seriesName: "CASH GIVE", seriesType: "Yearly", freezedate: "01-Apr-2025", status: "Active", description: "Cash payment voucher entry" },
+        { tcode: "BC", tnature: "CASHR", tnatureName: "Cash Entry Receipts", tname: "CASH", series: "DIO", seriesName: "CASH GIVE", seriesType: "Yearly", freezedate: "01-Apr-2025", status: "Active", description: "Cash receipt voucher entry" },
+        { tcode: "BR", tnature: "CNTR", tnatureName: "Contra Entry", tname: "CONTRA", series: "CT", seriesName: "Contra Transaction SBI", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Contra transaction between bank accounts" },
+        { tcode: "JV", tnature: "BLEN", tnatureName: "Shipping Bill Entry", tname: "JOURNAL VOUCHER", series: "B1", seriesName: "JOURNAL VOUCHER", seriesType: "Yearly", freezedate: "", status: "Active", description: "Shipping bill journal entry" },
+        { tcode: "JV", tnature: "JRAP", tnatureName: "Journal Voucher - AP", tname: "JOURNAL VOUCHER", series: "JAP", seriesName: "Journal Account Payable", seriesType: "Monthly", freezedate: "", status: "Active", description: "Accounts Payable journal entry" },
+        { tcode: "JV", tnature: "JRAR", tnatureName: "Journal Voucher - AR", tname: "JOURNAL VOUCHER", series: "JAR", seriesName: "Journal Account Receivable", seriesType: "Monthly", freezedate: "", status: "Active", description: "Accounts Receivable journal entry" },
+        { tcode: "JV", tnature: "JRNL", tnatureName: "Journal Voucher", tname: "JOURNAL VOUCHER", series: "JI", seriesName: "GST AVAILMENT", seriesType: "Monthly", freezedate: "", status: "Active", description: "General journal voucher with GST" },
+        { tcode: "JV", tnature: "JCRNT", tnatureName: "Jv Credit Note", tname: "JOURNAL VOUCHER", series: "JCR", seriesName: "Jv Credit Note", seriesType: "Yearly", freezedate: "", status: "Active", description: "Journal voucher credit note" },
+        { tcode: "JV", tnature: "JDRNT", tnatureName: "Jv Debit Note", tname: "JOURNAL VOUCHER", series: "JDR", seriesName: "Jv Debit Note", seriesType: "Yearly", freezedate: "", status: "Active", description: "Journal voucher debit note" },
+        { tcode: "JV", tnature: "JOBL", tnatureName: "Account Opening Balance", tname: "JOURNAL VOUCHER", series: "OB", seriesName: "Account Opening Balance", seriesType: "Yearly", freezedate: "", status: "Active", description: "Opening balance entry for accounts" },
+        { tcode: "JP", tnature: "PJNL", tnatureName: "Provisional Journal", tname: "JOURNAL-PROVISIONAL", series: "PJ", seriesName: "PROVISIONAL JOURNAL", seriesType: "Monthly", freezedate: "", status: "Active", description: "Provisional journal entries" },
+        { tcode: "0", tnature: "KAIZ", tnatureName: "Kaizen", tname: "", series: "KE", seriesName: "Kaizen", seriesType: "Monthly", freezedate: "", status: "Active", description: "Kaizen improvement entries" },
+        { tcode: "S", tnature: "PRET", tnatureName: "Purchase Return", tname: "SALE", series: "PN", seriesName: "PURCHASE RETURN (DONT USE)", seriesType: "Yearly", freezedate: "", status: "Active", description: "Purchase return transactions" },
+        { tcode: "S", tnature: "SALE", tnatureName: "Sale", tname: "SALE", series: "SIR", seriesName: "wct sale invoice with ( FG + SR )", seriesType: "Daily", freezedate: "31-Mar-2025", status: "Active", description: "Sales invoice with finished goods" },
+        { tcode: "P", tnature: "PURI", tnatureName: "Purchase Bill Passing", tname: "PURCHASE", series: "PP", seriesName: "PURCHASE APPROVAL (AP)", seriesType: "Daily", freezedate: "", status: "Active", description: "Purchase bill approval entry" },
+        { tcode: "P", tnature: "SRET", tnatureName: "Sales Return", tname: "PURCHASE", series: "S2", seriesName: "SALE RETURN", seriesType: "Yearly", freezedate: "31-Mar-2025", status: "Active", description: "Sales return transactions" },
+        { tcode: "Y", tnature: "CBIL", tnatureName: "Commercial Bill", tname: "COMMERCIAL INVOICE", series: "CB", seriesName: "COMMERCIAL BILL", seriesType: "Yearly", freezedate: "", status: "Active", description: "Commercial invoice for export" },
+        { tcode: "ME", tnature: "PJOB", tnatureName: "Jobwork Bill - Expenses", tname: "EXPENCE BILL", series: "JP", seriesName: "Job Work Bill", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Job work expense bill" },
+        { tcode: "ME", tnature: "EJOB", tnatureName: "Jobwork Bill - Expenses", tname: "EXPENCE BILL", series: "JB", seriesName: "JOBWORK BILL", seriesType: "Daily", freezedate: "", status: "Active", description: "Job work bill daily entry" },
+        { tcode: "ME", tnature: "ESBR", tnatureName: "General Expense - Repair Bill", tname: "EXPENCE BILL", series: "E2", seriesName: "REPAIR BILL", seriesType: "Monthly", freezedate: "", status: "Active", description: "Repair and maintenance expense" },
+        { tcode: "ME", tnature: "ESBS", tnatureName: "General Expense - Service Bill", tname: "EXPENCE BILL", series: "SBB", seriesName: "SERVICE BILL - BROKERAGE SERVICE", seriesType: "Monthly", freezedate: "31-Mar-2025", status: "Active", description: "Service bill expense entry" },
+        { tcode: "ME", tnature: "SBILL", tnatureName: "SERVICE BILL", tname: "EXPENCE BILL", series: "SBI", seriesName: "SERVICE BILL", seriesType: "Yearly", freezedate: "", status: "Active", description: "General service bill" },
+        { tcode: "ME", tnature: "EXPN", tnatureName: "General Expense", tname: "EXPENCE BILL", series: "GE", seriesName: "General expenses", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "General expense entry" },
+        { tcode: "MC", tnature: "PCRNT", tnatureName: "Purchase Credit Note", tname: "CREDIT NOTES", series: "VD", seriesName: "Purchase Credit Note(TN)", seriesType: "Yearly", freezedate: "", status: "Active", description: "Purchase credit note" },
+        { tcode: "MC", tnature: "MCRNT", tnatureName: "Credit Note", tname: "CREDIT NOTES", series: "C3", seriesName: "CREDIT NOTE", seriesType: "Daily", freezedate: "30-Sep-2060", status: "Active", description: "General credit note" },
+        { tcode: "MC", tnature: "SCRNT", tnatureName: "Sale Credit Note", tname: "CREDIT NOTES", series: "VN", seriesName: "CREDIT NOTE - SALES(TN)", seriesType: "Yearly", freezedate: "", status: "Active", description: "Sales credit note" },
+        { tcode: "MD", tnature: "SDRNT", tnatureName: "Sale Debit Note", tname: "DEBIT NOTES", series: "VT", seriesName: "DEBIT NOTE - SALES (TN)", seriesType: "Yearly", freezedate: "", status: "Active", description: "Sales debit note" },
+        { tcode: "MD", tnature: "MDRNT", tnatureName: "Debit Notes", tname: "DEBIT NOTES", series: "D3", seriesName: "DEBIT NOTE", seriesType: "Daily", freezedate: "", status: "Active", description: "General debit note" },
+        { tcode: "MD", tnature: "DCCI", tnatureName: "Debit Note - Contractor Issue", tname: "DEBIT NOTES", series: "DC", seriesName: "DEBIT NOTE CONTRACTOR - U4", seriesType: "Yearly", freezedate: "", status: "Active", description: "Contractor debit note" },
+        { tcode: "MD", tnature: "PDRNT", tnatureName: "Purchase Debit Note", tname: "DEBIT NOTES", series: "PB", seriesName: "PURCHASE DEBIT NOTE", seriesType: "Daily", freezedate: "", status: "Active", description: "Purchase debit note" },
+        { tcode: "MR", tnature: "TSBIL", tnatureName: "Type Test Service Bill", tname: "GENERAL REVENUE", series: "TS1", seriesName: "TYPETEST SERVICE BILL", seriesType: "Yearly", freezedate: "", status: "Active", description: "Type test service revenue" },
+        { tcode: "MR", tnature: "TSBILL", tnatureName: "Typeset Service Bill", tname: "GENERAL REVENUE", series: "TSB", seriesName: "Typeset Service Bill", seriesType: "Yearly", freezedate: "", status: "Active", description: "Typeset service revenue" },
+        { tcode: "MR", tnature: "MRHO", tnatureName: "Material Receipt Handover", tname: "GENERAL REVENUE", series: "00", seriesName: "MANUFACTURING CLEARANCE", seriesType: "Yearly", freezedate: "", status: "Active", description: "Material receipt handover" },
+        { tcode: "MR", tnature: "REVN", tnatureName: "General Revenue", tname: "GENERAL REVENUE", series: "V1", seriesName: "General Revenue(TN)", seriesType: "Yearly", freezedate: "31-Mar-2025", status: "Active", description: "General revenue entry" },
+        { tcode: "MR", tnature: "RJOB", tnatureName: "Job Work - Bill Passing Revenue", tname: "GENERAL REVENUE", series: "JW", seriesName: "BILL AGAINST JOB WORK", seriesType: "Daily", freezedate: "", status: "Active", description: "Job work revenue" },
+        { tcode: "MR", tnature: "SJOB", tnatureName: "Job Work - Bill Passing Revenue", tname: "GENERAL REVENUE", series: "S3", seriesName: "SERVICE BILL", seriesType: "Daily", freezedate: "", status: "Active", description: "Service bill revenue" },
+        { tcode: "IP", tnature: "INDI", tnatureName: "Purchase Requisition (Indent)", tname: "INDENT-PURCHASE REQUISITION", series: "I1", seriesName: "INDENT MULTI LEVEL", seriesType: "Daily", freezedate: "01-Apr-2025", status: "Active", description: "Purchase indent/requisition" },
+        { tcode: "IW", tnature: "SRIND", tnatureName: "Service Requisition", tname: "INDENT-SERVICE REQUISITION", series: "CA", seriesName: "Service Indent/Purchase Requisition-Preparation", seriesType: "Yearly", freezedate: "", status: "Active", description: "Service requisition entry" },
+        { tcode: "CP", tnature: "PCNTR", tnatureName: "Purchase Rate Contract", tname: "PURCHASE CONTRACT", series: "SSS", seriesName: "AAAA", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Purchase rate contract" },
+        { tcode: "CS", tnature: "SCNTR", tnatureName: "Sales Contract", tname: "SALES CONTRACT", series: "YRT", seriesName: "yerty", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Sales contract" },
+        { tcode: "EP", tnature: "ENQI", tnatureName: "Store Enquiry", tname: "PURCHASE ENQUIRY", series: "ET", seriesName: "ENQUIRY FOR STORE ITEMS", seriesType: "Monthly", freezedate: "31-Mar-2025", status: "Active", description: "Store item enquiry" },
+        { tcode: "ES", tnature: "SENQ", tnatureName: "Sales Enquiry", tname: "SALES ENQUIRY", series: "SC", seriesName: "Sales Enquiry - Cable (Domestic)", seriesType: "Yearly", freezedate: "31-Mar-2025", status: "Active", description: "Sales enquiry" },
+        { tcode: "EW", tnature: "SRENQ", tnatureName: "Service Enquiry", tname: "SERVICE ENQUIRY", series: "E3", seriesName: "SERVICE PURCHASE ENQUIRY-MAPL-3", seriesType: "Yearly", freezedate: "", status: "Active", description: "Service enquiry" },
+        { tcode: "FP", tnature: "QTNA", tnatureName: "Quotation Multi Approval", tname: "PURCHASE QUOTATION", series: "QA", seriesName: "Quotation Approval", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Purchase quotation approval" },
+        { tcode: "FP", tnature: "QTNI", tnatureName: "Quotation - Preparation", tname: "PURCHASE QUOTATION", series: "C7", seriesName: "PURCHASE QUOTATION", seriesType: "Monthly", freezedate: "31-Mar-2025", status: "Active", description: "Purchase quotation preparation" },
+        { tcode: "FS", tnature: "QTNS", tnatureName: "Quotation Sales", tname: "SALES QUOTATION", series: "Q5", seriesName: "Sales Quotation - Project(RMD)", seriesType: "Monthly", freezedate: "18-Oct-2025", status: "Active", description: "Sales quotation" },
+        { tcode: "OS", tnature: "ORMC", tnatureName: "Order Manufacturing Clearance", tname: "SALE ORDER", series: "MC", seriesName: "MANUFACTURING CLEARANCE", seriesType: "Yearly", freezedate: "", status: "Active", description: "Manufacturing clearance order" },
+        { tcode: "OS", tnature: "ORDA", tnatureName: "Order Dispatch Advice", tname: "SALE ORDER", series: "DI", seriesName: "DI-DISPATCH INSTRUCTION", seriesType: "Yearly", freezedate: "", status: "Active", description: "Dispatch instruction order" },
+        { tcode: "OS", tnature: "PCONT", tnatureName: "Project Contract", tname: "SALE ORDER", series: "PEB", seriesName: "Pre-Engineered Building (PEB)", seriesType: "Daily", freezedate: "01-Apr-2025", status: "Active", description: "Project contract order" },
+        { tcode: "OS", tnature: "SORD", tnatureName: "Sales Order", tname: "SALE ORDER", series: "S1", seriesName: "SALES ORDER EXPORT", seriesType: "Yearly", freezedate: "", status: "Active", description: "Export sales order" },
+        { tcode: "OP", tnature: "ORDI", tnatureName: "Purchase Order", tname: "PURCHASE ORDERS", series: "A1", seriesName: "Purchase Order Multi Level", seriesType: "Daily", freezedate: "01-Apr-2025", status: "Active", description: "Multi-level purchase order" },
+        { tcode: "OW", tnature: "WORD", tnatureName: "Work Order", tname: "WORK/SERVICE ORDERS", series: "W1", seriesName: "WORK ORDER MULTIPLE", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Work order entry" },
+        { tcode: "OJ", tnature: "JORD", tnatureName: "Job Work Order", tname: "JOB WORK ORDERS", series: "JOR", seriesName: "Job Work Order", seriesType: "Yearly", freezedate: "", status: "Active", description: "Job work order" },
+        { tcode: "GP", tnature: "GRNI", tnatureName: "Goods Receipt Note", tname: "GRN", series: "TS7", seriesName: "Test GRN", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Goods receipt note" },
+        { tcode: "GP", tnature: "IOPB", tnatureName: "Item Opening Stock", tname: "GRN", series: "OC", seriesName: "Opening Stock - Cylinder", seriesType: "Yearly", freezedate: "01-Apr-2025", status: "Active", description: "Opening stock entry" },
+        { tcode: "GW", tnature: "SRNI", tnatureName: "Service Received Note", tname: "SRN", series: "V7", seriesName: "Service Recieved Note-HO", seriesType: "Yearly", freezedate: "", status: "Active", description: "Service received note" },
+        { tcode: "QC", tnature: "CNTI", tnatureName: "Contractor Issue(Chargeable)", tname: "QTY - CHARGEABLE CONTRACTOR ISSUE", series: "DI", seriesName: "Diesel Issue Entry", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Chargeable contractor issue" },
+        { tcode: "QM", tnature: "IDTI", tnatureName: "Inter Div Stock Transfer", tname: "QTY MOVEMENT", series: "TR", seriesName: "INTER DIVISION TRANSFER", seriesType: "Monthly", freezedate: "", status: "Active", description: "Inter-division stock transfer" },
+        { tcode: "QI", tnature: "ISSI", tnatureName: "Issue", tname: "QTY ISSUED/PLANT RETURN", series: "RIP", seriesName: "ISSUE PRODUCTION", seriesType: "Monthly", freezedate: "", status: "Active", description: "Production issue" },
+        { tcode: "QI", tnature: "RETI", tnatureName: "Plant Return", tname: "QTY ISSUED/PLANT RETURN", series: "RP", seriesName: "PLANT RETURN (PROD)", seriesType: "Monthly", freezedate: "", status: "Active", description: "Plant return entry" },
+        { tcode: "QP", tnature: "PROD", tnatureName: "Production Entry", tname: "QTY PRODUCTION", series: "PR", seriesName: "PRODUCTION RAW ATTR TRAN DATA", seriesType: "Yearly", freezedate: "01-Apr-2025", status: "Active", description: "Production entry" },
+        { tcode: "QH", tnature: "DISP", tnatureName: "Dispatch Challan", tname: "QTY-DISPATCH CHALLAN/PACKING SLIP", series: "D2", seriesName: "D2-DISPATCH INSTRUCTION DOMESTIC", seriesType: "Yearly", freezedate: "", status: "Active", description: "Dispatch challan" },
+        { tcode: "NG", tnature: "SECU", tnatureName: "Gate With Material", tname: "GATE ENTRY", series: "GA", seriesName: "GATE ENTRY-AUTO", seriesType: "Monthly", freezedate: "05-Nov-2025", status: "Active", description: "Gate entry with material" },
+        { tcode: "NQ", tnature: "QCIN", tnatureName: "Inward QC", tname: "QUALITY CONTROL", series: "Q2", seriesName: "QC AGAINST - GRN", seriesType: "Monthly", freezedate: "", status: "Active", description: "Inward quality control" },
+        { tcode: "NQ", tnature: "QCPRO", tnatureName: "Production QC", tname: "QUALITY CONTROL", series: "T1", seriesName: "PRODUCTION QC -", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Production quality control" },
+        { tcode: "NI", tnature: "REQI", tnatureName: "Requisition - Store Issue", tname: "ISSUE REQUITION", series: "IRS", seriesName: "ISSUE REQUITION - SV", seriesType: "Yearly", freezedate: "01-Apr-2025", status: "Active", description: "Store issue requisition" },
+        { tcode: "NT", tnature: "TISS", tnatureName: "Tools & Tackles Issue", tname: "TOOLS AND TACKELS", series: "TI", seriesName: "Tools & Tackles Issue", seriesType: "Daily", freezedate: "", status: "Active", description: "Tools issue entry" },
+        { tcode: "NT", tnature: "TREC", tnatureName: "Tools & Tackles Receipts", tname: "TOOLS AND TACKELS", series: "TR", seriesName: "TOOLS AND TACKLES RECEIPT", seriesType: "Yearly", freezedate: "", status: "Active", description: "Tools receipt entry" },
+        { tcode: "NP", tnature: "GGPI", tnatureName: "Gate Pass - General", tname: "GATE PASSES", series: "GG", seriesName: "GENERAL GATEPASS", seriesType: "Daily", freezedate: "", status: "Active", description: "General gate pass" },
+        { tcode: "ZF", tnature: "CHQC", tnatureName: "Cheque Cancel", tname: "OTHER- RELATED TO FINANCE & ACCOUNTS", series: "C1", seriesName: "CHEQUE CANCEL", seriesType: "Daily", freezedate: "", status: "Active", description: "Cheque cancellation entry" },
+        { tcode: "ZF", tnature: "BSLIP", tnatureName: "Bank Deposit Slip", tname: "OTHER- RELATED TO FINANCE & ACCOUNTS", series: "BSL", seriesName: "Bank Deposit Slip", seriesType: "Yearly", freezedate: "", status: "Active", description: "Bank deposit slip" },
+        { tcode: "ZS", tnature: "TEND", tnatureName: "Tender Entry", tname: "OTHER- RELATED TO SCM", series: "TE", seriesName: "TENDER MASTER-TM", seriesType: "Daily", freezedate: "", status: "Active", description: "Tender master entry" },
+        { tcode: "ZA", tnature: "ALWN", tnatureName: "Medical Allow", tname: "OTHER- RELATED TO OTEHR ADDON MODULE", series: "LO", seriesName: "1111", seriesType: "Monthly", freezedate: "01-Apr-2025", status: "Active", description: "Medical allowance entry" },
+        { tcode: "ZP", tnature: "PROC", tnatureName: "Process Work", tname: "OTHER- RELATED TO PRODUCTION", series: "PP", seriesName: "Production Process", seriesType: "Daily", freezedate: "", status: "Active", description: "Production process entry" },
+        { tcode: "ZM", tnature: "SLOG", tnatureName: "Shift Log", tname: "OTHER- RELATED TO PM", series: "S2", seriesName: "SHIFT LOG - RM", seriesType: "Daily", freezedate: "", status: "Active", description: "Shift log entry" },
+        { tcode: "ZH", tnature: "APMT", tnatureName: "Appointment", tname: "OTHER- RELATED TO HRD", series: "AT", seriesName: "APPOINTMENT", seriesType: "Yearly", freezedate: "", status: "Active", description: "Employee appointment" },
+        { tcode: "ZH", tnature: "EPAY", tnatureName: "Employee Salary", tname: "OTHER- RELATED TO HRD", series: "SP", seriesName: "EMPLOYEE PAYROLL", seriesType: "Monthly", freezedate: "", status: "Active", description: "Employee payroll" },
+        { tcode: "ZZ", tnature: "SETUP", tnatureName: "Prod Setup", tname: "Tran Reversal", series: "PN", seriesName: "PRODUCTION SETUP", seriesType: "Yearly", freezedate: "", status: "Active", description: "Production setup" },
+        { tcode: "ZZ", tnature: "REVS", tnatureName: "Transaction Reversal", tname: "Tran Reversal", series: "REV", seriesName: "Transaction Reversal", seriesType: "Yearly", freezedate: "", status: "Active", description: "Transaction reversal" },
+        { tcode: "ZW", tnature: "WSLIP", tnatureName: "Weight Slip", tname: "WEIGHT-BRIDGE", series: "JO", seriesName: "OUTWARD - JOB WORK", seriesType: "Daily", freezedate: "", status: "Active", description: "Weighbridge weight slip" },
+      ];
+
+      // Group data by Tcode for overview
+      const tcodeGroups = {};
+      tcodeData.forEach(item => {
+        if (!tcodeGroups[item.tcode]) {
+          tcodeGroups[item.tcode] = [];
+        }
+        tcodeGroups[item.tcode].push(item);
+      });
+
+      // Tcode Detail Modal Component
+      const TcodeDetailModal = ({ tcode, items, onClose }) => {
+        const firstItem = items[0];
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              {/* Header */}
+              <div className="bg-gradient-to-r from-indigo-600/30 to-purple-600/30 px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl font-black font-mono text-indigo-400">{tcode}</span>
+                    <span className="text-sm text-slate-400">Tcode</span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">{items.length} T-Nature configurations</p>
+                </div>
+                <button onClick={onClose} className="text-slate-500 hover:text-slate-300 transition-colors text-2xl">&times;</button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                {/* Summary Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-slate-800 rounded-xl p-3 text-center">
+                    <div className="text-2xl font-bold text-indigo-400">{items.length}</div>
+                    <div className="text-xs text-slate-500">Total T-Natures</div>
+                  </div>
+                  <div className="bg-slate-800 rounded-xl p-3 text-center">
+                    <div className="text-2xl font-bold text-emerald-400">{items.filter(i => i.status === "Active").length}</div>
+                    <div className="text-xs text-slate-500">Active</div>
+                  </div>
+                  <div className="bg-slate-800 rounded-xl p-3 text-center">
+                    <div className="text-2xl font-bold text-amber-400">{items.filter(i => i.seriesType === "Daily").length}</div>
+                    <div className="text-xs text-slate-500">Daily Series</div>
+                  </div>
+                  <div className="bg-slate-800 rounded-xl p-3 text-center">
+                    <div className="text-2xl font-bold text-purple-400">{items.filter(i => i.freezedate).length}</div>
+                    <div className="text-xs text-slate-500">Frozen</div>
+                  </div>
+                </div>
+
+                {/* Table View */}
+                <div className="border border-slate-800 rounded-xl overflow-hidden">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-slate-800">
+                      <tr>
+                        <th className="p-3 font-bold text-xs text-slate-400 uppercase">T-Nature</th>
+                        <th className="p-3 font-bold text-xs text-slate-400 uppercase">Name</th>
+                        <th className="p-3 font-bold text-xs text-slate-400 uppercase">TName</th>
+                        <th className="p-3 font-bold text-xs text-slate-400 uppercase">Series</th>
+                        <th className="p-3 font-bold text-xs text-slate-400 uppercase">Series Name</th>
+                        <th className="p-3 font-bold text-xs text-slate-400 uppercase">Type</th>
+                        <th className="p-3 font-bold text-xs text-slate-400 uppercase">Freeze Date</th>
+                        <th className="p-3 font-bold text-xs text-slate-400 uppercase">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {items.map((item, idx) => (
+                        <tr key={idx} className="hover:bg-slate-800/50 transition-colors">
+                          <td className="p-3 font-mono font-bold text-cyan-400">{item.tnature}</td>
+                          <td className="p-3 text-slate-300 text-xs">{item.tnatureName || "—"}</td>
+                          <td className="p-3 text-slate-400 font-mono text-xs">{item.tname || "—"}</td>
+                          <td className="p-3 font-mono text-amber-400 text-xs">{item.series}</td>
+                          <td className="p-3 text-slate-400 text-xs max-w-[150px] truncate" title={item.seriesName}>{item.seriesName || "—"}</td>
+                          <td className="p-3">
+                            <span className={`text-[10px] px-2 py-0.5 rounded ${item.seriesType === 'Daily' ? 'bg-blue-500/20 text-blue-400' : item.seriesType === 'Monthly' ? 'bg-purple-500/20 text-purple-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                              {item.seriesType}
+                            </span>
+                          </td>
+                          <td className="p-3 text-slate-500 text-xs">{item.freezedate || "—"}</td>
+                          <td className="p-3">
+                            <span className={`text-[10px] px-2 py-0.5 rounded ${item.status === 'Active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                              {item.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Description */}
+                {firstItem.description && (
+                  <div className="mt-4 p-4 bg-slate-800/50 rounded-xl">
+                    <p className="text-xs text-slate-400">{firstItem.description}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // Tcode Details Page Component
+      const TcodeDetailsPage = () => {
+        const [searchTerm, setSearchTerm] = useState("");
+        const [filterStatus, setFilterStatus] = useState("All");
+        const [filterSeriesType, setFilterSeriesType] = useState("All");
+
+        const filteredData = tcodeData.filter(item => {
+          const matchesSearch = item.tcode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.tnature.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (item.tnatureName && item.tnatureName.toLowerCase().includes(searchTerm.toLowerCase()));
+          const matchesStatus = filterStatus === "All" || item.status === filterStatus;
+          const matchesSeriesType = filterSeriesType === "All" || item.seriesType === filterSeriesType;
+          return matchesSearch && matchesStatus && matchesSeriesType;
+        });
+
+        const statuses = ["All", ...new Set(tcodeData.map(i => i.status))];
+        const seriesTypes = ["All", ...new Set(tcodeData.map(i => i.seriesType))];
+
+        return (
+          <div className="animate-fade-in">
+            <SectionHeader icon="📋" title="Tcode / T-Nature Configuration" subtitle="Complete list of all voucher types, series configurations, and transaction natures" count={tcodeData.length} />
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-3 mb-6">
+              <div className="relative flex-1 min-w-[200px]">
+                <input
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  placeholder="Search by Tcode, T-Nature, or Name..."
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg py-2 pl-4 pr-10 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+                />
+                <svg className="w-4 h-4 text-slate-600 absolute right-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              </div>
+              <select
+                value={filterStatus}
+                onChange={e => setFilterStatus(e.target.value)}
+                className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              >
+                {statuses.map(s => <option key={s} value={s}>Status: {s}</option>)}
+              </select>
+              <select
+                value={filterSeriesType}
+                onChange={e => setFilterSeriesType(e.target.value)}
+                className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              >
+                {seriesTypes.map(s => <option key={s} value={s}>Series: {s}</option>)}
+              </select>
+            </div>
+
+            {/* Main Table */}
+            <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-900 text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th className="p-3 font-bold text-xs uppercase tracking-wider">Tcode</th>
+                      <th className="p-3 font-bold text-xs uppercase tracking-wider">T-Nature</th>
+                      <th className="p-3 font-bold text-xs uppercase tracking-wider">T-Nature Name</th>
+                      <th className="p-3 font-bold text-xs uppercase tracking-wider">Tname</th>
+                      <th className="p-3 font-bold text-xs uppercase tracking-wider">Series</th>
+                      <th className="p-3 font-bold text-xs uppercase tracking-wider">Series Name</th>
+                      <th className="p-3 font-bold text-xs uppercase tracking-wider">Series Type</th>
+                      <th className="p-3 font-bold text-xs uppercase tracking-wider">Freeze Date</th>
+                      <th className="p-3 font-bold text-xs uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {filteredData.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/50 transition-colors">
+                        <td className="p-3 font-mono font-bold text-indigo-400">{item.tcode}</td>
+                        <td className="p-3 font-mono font-bold text-cyan-400">{item.tnature}</td>
+                        <td className="p-3 text-slate-300">{item.tnatureName || "—"}</td>
+                        <td className="p-3 text-slate-400 font-mono text-xs">{item.tname || "—"}</td>
+                        <td className="p-3 font-mono text-amber-400">{item.series}</td>
+                        <td className="p-3 text-slate-400 max-w-[200px] truncate" title={item.seriesName}>{item.seriesName || "—"}</td>
+                        <td className="p-3">
+                          <span className={`text-[10px] px-2 py-0.5 rounded ${item.seriesType === 'Daily' ? 'bg-blue-500/20 text-blue-400' : item.seriesType === 'Monthly' ? 'bg-purple-500/20 text-purple-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                            {item.seriesType}
+                          </span>
+                        </td>
+                        <td className="p-3 text-slate-500 text-xs">{item.freezedate || "—"}</td>
+                        <td className="p-3">
+                          <span className={`text-[10px] px-2 py-0.5 rounded ${item.status === 'Active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                            {item.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {filteredData.length === 0 && (
+                <div className="text-center py-12 text-slate-500">
+                  No matching configurations found
+                </div>
+              )}
+            </div>
+
+            <p className="text-slate-600 text-xs mt-3">Showing {filteredData.length} of {tcodeData.length} configurations</p>
+          </div>
+        );
+      };
 
       return (
         <div className="min-h-screen bg-[#020617] text-slate-200 font-sans selection:bg-indigo-500/30">
+          {/* Tcode Detail Modal */}
+          {showTcodeModal && selectedTcode && (
+            <TcodeDetailModal
+              tcode={selectedTcode}
+              items={tcodeGroups[selectedTcode]}
+              onClose={() => setShowTcodeModal(false)}
+            />
+          )}
+
           {/* Top Nav */}
           <nav className="sticky top-0 z-50 bg-[#050e1f]/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8">
             <div className="max-w-7xl mx-auto flex items-center">
@@ -4164,23 +4468,16 @@ const ERDiagram = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
                   {[
-                    { icon: "🗄️", label: "DB Tables", value: DB_TABLES.length, color: "#6366f1" },
-                    { icon: "🔗", label: "Common Fields", value: COMMON_FIELDS.length, color: "#10b981" },
-                    { icon: "🖼️", label: "Frame Types", value: FRAME_TYPES.length, color: "#f59e0b" },
-                    { icon: "🧩", label: "Item Types", value: ITEM_TYPES.length, color: "#ec4899" },
-                    { icon: "⚡", label: "Built-Ins", value: BUILTINS.length, color: "#14b8a6" },
-                    { icon: "📚", label: "Libraries", value: LIBRARIES.length, color: "#8b5cf6" },
+                    { icon: "🗄️", label: "DB Tables", value: DB_TABLES.length, color: "#6366f1", action: "schema" },
+                    { icon: "🔗", label: "Common Fields", value: COMMON_FIELDS.length, color: "#10b981", action: "common" },
+                    { icon: "🖼️", label: "Frame Types", value: FRAME_TYPES.length, color: "#f59e0b", action: "frame" },
+                    { icon: "🧩", label: "Item Types", value: ITEM_TYPES.length, color: "#ec4899", action: "items" },
+                    { icon: "⚡", label: "Built-Ins", value: BUILTINS.length, color: "#14b8a6", action: "builtins" },
+                    { icon: "📚", label: "Libraries", value: LIBRARIES.length, color: "#8b5cf6", action: "library" },
                   ].map((s, idx) => (
                     <div
                       key={idx}
-                      onClick={() => {
-                        if (s.label === "Common Fields") setActiveTab("common");
-                        else if (s.label === "DB Tables") setActiveTab("schema");
-                        else if (s.label === "Frame Types") setActiveTab("frame");
-                        else if (s.label === "Item Types") setActiveTab("items");
-                        else if (s.label === "Built-Ins") setActiveTab("builtins");
-                        else if (s.label === "Libraries") setActiveTab("library");
-                      }}
+                      onClick={() => s.action && setActiveTab(s.action)}
                       className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center border-t-4 hover:-translate-y-1 transition-transform duration-300 cursor-pointer"
                       style={{ borderTopColor: s.color }}
                     >
@@ -4189,6 +4486,94 @@ const ERDiagram = () => {
                       <div className="text-slate-500 text-xs font-bold uppercase tracking-wider">{s.label}</div>
                     </div>
                   ))}
+                </div>
+
+                {/* TCODE / TNATURE CONFIGURATION BLOCK - CARDS THAT CLICK TO SHOW DETAILS */}
+                <div className="mb-12">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-1 h-8 rounded-full bg-gradient-to-b from-indigo-500 to-purple-600"></div>
+                    <h2 className="text-lg font-bold text-slate-100 font-mono tracking-tight">
+                      📋 Tcode / T-Nature Configuration
+                    </h2>
+                    <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">Click any card to view details</span>
+                    <span className="ml-auto text-xs text-slate-500">{tcodeData.length} configurations</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                    {Object.entries(tcodeGroups).map(([tcode, items]) => (
+                      <div
+                        key={tcode}
+                        onClick={() => {
+                          setSelectedTcode(tcode);
+                          setShowTcodeModal(true);
+                        }}
+                        className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
+                      >
+                        {/* Tcode Header */}
+                        <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 px-4 py-3 border-b border-slate-800">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-xl text-indigo-400 group-hover:text-indigo-300 transition-colors">{tcode}</span>
+                              <span className="text-xs text-slate-500">({items.length} T-Natures)</span>
+                            </div>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full ${items[0].status === 'Active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                              {items[0].status}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* T-Nature Items Preview */}
+                        <div className="p-3 space-y-2 max-h-[280px] overflow-y-auto">
+                          {items.slice(0, 5).map((item, idx) => (
+                            <div key={idx} className="bg-slate-950 rounded-lg p-2.5 border border-slate-800 hover:border-slate-700 transition-all">
+                              <div className="flex items-start justify-between mb-1.5">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-mono text-sm font-bold text-cyan-400">{item.tnature}</span>
+                                  {item.tnatureName && (
+                                    <span className="text-[10px] text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded truncate max-w-[100px]">
+                                      {item.tnatureName}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                                <div className="flex items-center gap-1">
+                                  <span className="text-slate-500">📁</span>
+                                  <span className="text-slate-400 font-mono text-xs truncate">{item.tname || '—'}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-slate-500">🔢</span>
+                                  <span className="text-slate-400 font-mono text-xs">{item.series}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-slate-500">⏱️</span>
+                                  <span className={`text-[9px] px-1.5 py-0.5 rounded ${item.seriesType === 'Daily' ? 'bg-blue-500/20 text-blue-400' : item.seriesType === 'Monthly' ? 'bg-purple-500/20 text-purple-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                                    {item.seriesType}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-slate-500">📅</span>
+                                  <span className="text-slate-500 text-[9px]">{item.freezedate || '—'}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          {items.length > 5 && (
+                            <div className="text-center text-[10px] text-indigo-400 py-1">
+                              +{items.length - 5} more configurations
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Footer stats */}
+                        <div className="bg-slate-800/30 px-3 py-1.5 border-t border-slate-800 text-[10px] text-slate-500 flex justify-between">
+                          <span>Series: {[...new Set(items.map(i => i.seriesType))].join(', ')}</span>
+                          <span className="text-indigo-400">Click to view all →</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -4265,7 +4650,7 @@ const ERDiagram = () => {
               </div>
             )}
 
-            {/* COMMON FIELDS - NEW TAB */}
+            {/* COMMON FIELDS */}
             {activeTab === "common" && <CommonFieldsView />}
 
             {/* ER DIAGRAM */}
@@ -4274,14 +4659,6 @@ const ERDiagram = () => {
                 <SectionHeader icon="📊" title="ER Diagram" subtitle="Entity-Relationship visualization — hover nodes to highlight connections" />
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 overflow-hidden">
                   <ERDiagram />
-                </div>
-                <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-3">
-                  {DB_TABLES.map(t => (
-                    <div key={t.name} className="bg-slate-900 border border-slate-800 rounded-lg p-3 border-l-4" style={{ borderLeftColor: t.color }}>
-                      <div className="font-mono text-xs font-bold text-slate-200 truncate">{t.name}</div>
-                      <div className="text-[10px] text-slate-500 truncate">{t.description}</div>
-                    </div>
-                  ))}
                 </div>
               </div>
             )}
@@ -4384,6 +4761,9 @@ const ERDiagram = () => {
               </div>
             )}
 
+            {/* TCODE DETAILS PAGE */}
+            {activeTab === "tcode" && <TcodeDetailsPage />}
+
           </main>
 
           <footer className="border-t border-slate-800 py-8 mt-12 text-center">
@@ -4428,4 +4808,3 @@ const ERDiagram = () => {
 </body>
 
 </html>
-
